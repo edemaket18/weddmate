@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "WeddMate",
+    "slug": "weddmate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "weddmate",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#1B3A5C"
+    },
+    "ios": { "supportsTablet": false },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1B3A5C"
+      }
+    },
+    "plugins": [ "expo-router", "expo-camera", ["expo-image-picker", { "photosPermission": "Accès photos pour la galerie mariage" }] ],
+    "experiments": { "typedRoutes": true }
+  }
+}

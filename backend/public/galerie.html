@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WeddMate — Galerie photo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1B3A5C;
+      --accent: #C9A84C;
+      --white: #FFFFFF;
+      --gray: #F4F6F8;
+      --border: #D0D9E4;
+      --text: #1E2D3D;
+      --muted: #6B7C93;
+      --success: #38A169;
+      --danger: #E53E3E;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray); color: var(--text); }
+
+    .header { background: var(--primary); padding: 24px 20px 20px; text-align: center; }
+    .header-emoji { font-size: 36px; margin-bottom: 8px; }
+    .header-title { font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .header-date { font-size: 13px; color: var(--accent); margin-bottom: 2px; }
+    .header-lieu { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+    .upload-section { padding: 16px; }
+    .upload-card { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .upload-card h2 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px; text-align: center; }
+
+    .upload-btn {
+      display: block; width: 100%; padding: 14px;
+      background: var(--primary); color: var(--white);
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+      cursor: pointer; text-align: center; margin-bottom: 10px;
+    }
+    .upload-btn:active { opacity: 0.8; }
+    .upload-btn.accent { background: var(--accent); color: var(--primary); }
+
+    .preview-wrap { position: relative; margin-bottom: 12px; display: none; }
+    .preview-img { width: 100%; max-height: 240px; object-fit: cover; border-radius: 12px; }
+    .preview-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: none; color: white; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; cursor: pointer; }
+
+    .caption-input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 14px; color: var(--text);
+      background: var(--gray); margin-bottom: 12px; resize: none;
+    }
+    .name-input {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 14px; color: var(--text);
+      background: var(--gray); margin-bottom: 12px;
+    }
+
+    .progress { display: none; text-align: center; padding: 12px; color: var(--muted); font-size: 13px; }
+    .progress.show { display: block; }
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .success-msg { display: none; background: #f0fff4; border: 1px solid #c6f6d5; border-radius: 10px; padding: 12px; text-align: center; color: var(--success); font-size: 14px; font-weight: 500; margin-top: 10px; }
+    .success-msg.show { display: block; }
+    .error-msg { display: none; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 10px; padding: 12px; text-align: center; color: var(--danger); font-size: 14px; margin-top: 10px; }
+    .error-msg.show { display: block; }
+
+    .gallery-section { padding: 0 16px 16px; }
+    .gallery-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .gallery-count { font-size: 12px; color: var(--muted); font-weight: 400; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; cursor: pointer; transition: opacity 0.2s; }
+    .gallery-grid img:active { opacity: 0.7; }
+
+    .empty-gallery { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 14px; }
+    .empty-gallery-emoji { font-size: 40px; display: block; margin-bottom: 10px; }
+
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 100; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+    .lightbox.show { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px; }
+    .lightbox-caption { color: rgba(255,255,255,0.7); font-size: 13px; text-align: center; margin-top: 12px; }
+    .lightbox-uploader { color: rgba(255,255,255,0.4); font-size: 12px; text-align: center; margin-top: 4px; }
+    .lightbox-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.15); border: none; color: white; font-size: 20px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    .footer { text-align: center; padding: 20px; color: var(--muted); font-size: 12px; }
+    .footer span { color: var(--accent); font-weight: 600; }
+
+    .closed-banner { background: #fff5f5; border: 1px solid #fed7d7; border-radius: 12px; margin: 16px; padding: 20px; text-align: center; }
+    .closed-banner-emoji { font-size: 36px; display: block; margin-bottom: 8px; }
+    .closed-banner-text { color: var(--danger); font-size: 15px; font-weight: 600; }
+    .closed-banner-sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+    input[type="file"] { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Header  -->
+  <div class="header">
+    <div class="header-emoji">💍</div>
+    <div class="header-title" id="weddingTitle">Chargement...</div>
+    <div class="header-date" id="weddingDate"></div>
+    <div class="header-lieu" id="weddingLieu"></div>
+  </div>
+
+  <div id="mainContent"></div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" src="" alt="Photo"/>
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+    <div class="lightbox-uploader" id="lightboxUploader"></div>
+  </div>
+
+  <div class="footer">Propulsé par <span>WeddMate</span> 💍</div>
+
+  <script>
+    //Config
+    const slug = window.location.pathname.split('/gallery/')[1]?.replace(/\/$/, '')
+    const API = window.location.origin
+    let weddingData = null
+    let selectedFile = null
+
+    //Init
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadGallery()
+    })
+
+    async function loadGallery() {
+      try {
+        const res = await fetch(`${API}/gallery/${slug}/data`)
+        const json = await res.json()
+
+        if (!res.ok) {
+          showClosed(json.error || 'Galerie non disponible')
+          return
+        }
+
+        weddingData = json.data
+        renderHeader(weddingData)
+        renderContent(weddingData)
+      } catch (e) {
+        showClosed('Impossible de charger la galerie.')
+      }
+    }
+
+    function renderHeader(data) {
+      document.getElementById('weddingTitle').textContent = data.nomCeremonie
+      const date = new Date(data.dateJourJ).toLocaleDateString('fr-FR', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      })
+      document.getElementById('weddingDate').textContent = '📅 ' + date
+      if (data.lieuCeremonie) {
+        document.getElementById('weddingLieu').textContent = '📍 ' + data.lieuCeremonie
+      }
+    }
+
+    function renderContent(data) {
+      const photos = data.photos || []
+      const html = `
+        <!-- Upload section -->
+        <div class="upload-section">
+          <div class="upload-card">
+            <h2>📸 Partagez vos photos</h2>
+
+            <input type="text" class="name-input" id="uploaderName" placeholder="Votre prénom (optionnel)"/>
+
+            <div class="preview-wrap" id="previewWrap">
+              <img id="previewImg" src="" alt="Aperçu"/>
+              <button class="preview-remove" onclick="removeFile()">✕</button>
+            </div>
+
+            <input type="file" id="fileInput" accept="image/*" onchange="onFileSelect(event)"/>
+
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+              📷 Choisir une photo
+            </button>
+
+            <textarea class="caption-input" id="captionInput" rows="2"
+              placeholder="Légende (optionnel) — Ex: Belle cérémonie !"></textarea>
+
+            <button class="upload-btn accent" id="submitBtn" onclick="uploadPhoto()" style="display:none">
+              ✅ Envoyer la photo
+            </button>
+
+            <div class="progress" id="progressMsg">
+              <span class="spinner"></span> <span id="progressText">Upload en cours...</span>
+            </div>
+            <div class="success-msg" id="successMsg">✅ Photo ajoutée avec succès !</div>
+            <div class="error-msg" id="errorMsg"></div>
+          </div>
+        </div>
+
+        <!-- Galerie -->
+        <div class="gallery-section">
+          <div class="gallery-title">
+            Photos du mariage <span class="gallery-count" id="photoCount">(${photos.length})</span>
+          </div>
+          <div class="gallery-grid" id="galleryGrid">
+            ${photos.length === 0
+              ? '<div class="empty-gallery" style="grid-column:1/-1"><span class="empty-gallery-emoji">🖼️</span>Soyez le premier à partager une photo !</div>'
+              : photos.map((p, i) => `
+                <img
+                  src="${p.thumbnailUrl || p.url}"
+                  alt="${p.caption || 'Photo mariage'}"
+                  onclick="openLightbox('${p.url}', '${(p.caption || '').replace(/'/g, "\\'")}', '${(p.uploadePar || '').replace(/'/g, "\\'")}')">
+              `).join('')
+            }
+          </div>
+        </div>
+      `
+      document.getElementById('mainContent').innerHTML = html
+    }
+
+    function showClosed(msg) {
+      document.getElementById('mainContent').innerHTML = `
+        <div class="closed-banner">
+          <span class="closed-banner-emoji">🔒</span>
+          <div class="closed-banner-text">Galerie non disponible</div>
+          <div class="closed-banner-sub">${msg}</div>
+        </div>
+      `
+    }
+
+    //Fichier  selectionné
+    function onFileSelect(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      selectedFile = file
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        document.getElementById('previewImg').src = e.target.result
+        document.getElementById('previewWrap').style.display = 'block'
+        document.getElementById('submitBtn').style.display = 'block'
+        document.getElementById('successMsg').classList.remove('show')
+        document.getElementById('errorMsg').classList.remove('show')
+      }
+      reader.readAsDataURL(file)
+    }
+
+    function removeFile() {
+      selectedFile = null
+      document.getElementById('previewWrap').style.display = 'none'
+      document.getElementById('submitBtn').style.display = 'none'
+      document.getElementById('fileInput').value = ''
+    }
+
+    //Upload de photo
+    async function uploadPhoto() {
+      if (!selectedFile) return
+
+      const caption = document.getElementById('captionInput').value.trim()
+      const uploaderName = document.getElementById('uploaderName').value.trim() || 'Invité'
+
+      //Afficher le loader
+      document.getElementById('progressMsg').classList.add('show')
+      document.getElementById('progressText').textContent = 'Upload en cours...'
+      document.getElementById('submitBtn').disabled = true
+      document.getElementById('errorMsg').classList.remove('show')
+      document.getElementById('successMsg').classList.remove('show')
+
+      try {
+        // Convertir en base64 pour envoyer au backend
+        const base64 = await fileToBase64(selectedFile)
+        const mimeType = selectedFile.type || 'image/jpeg'
+
+        document.getElementById('progressText').textContent = 'Envoi au serveur...'
+
+        const res = await fetch(`${API}/gallery/${slug}/photos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageBase64: base64,
+            mimeType,
+            uploadePar: uploaderName,
+            caption: caption || null,
+            taille: selectedFile.size,
+          }),
+        })
+
+        const json = await res.json()
+        if (!res.ok) throw new Error(json.error || 'Erreur serveur')
+
+        // Succès
+        document.getElementById('progressMsg').classList.remove('show')
+        document.getElementById('successMsg').classList.add('show')
+        document.getElementById('captionInput').value = ''
+        removeFile()
+
+        // Recharger les photos
+        setTimeout(() => loadGallery(), 1500)
+
+      } catch (e) {
+        document.getElementById('progressMsg').classList.remove('show')
+        document.getElementById('submitBtn').disabled = false
+        const errEl = document.getElementById('errorMsg')
+        errEl.textContent = '❌ ' + (e.message || 'Erreur lors de l\'upload')
+        errEl.classList.add('show')
+      }
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result.split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    }
+
+    //Lightbox
+    function openLightbox(url, caption, uploader) {
+      document.getElementById('lightboxImg').src = url
+      document.getElementById('lightboxCaption').textContent = caption || ''
+      document.getElementById('lightboxUploader').textContent = uploader ? 'Par ' + uploader : ''
+      document.getElementById('lightbox').classList.add('show')
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('show')
+    }
+  </script>
+</body>
+</html>

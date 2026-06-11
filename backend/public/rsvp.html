@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0 />
+    <title>WeddMate — Invitation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1B3A5C; --accent: #C9A84C; --white: #FFFFFF;
+      --gray: #F4F6F8; --border: #D0D9E4; --text: #1E2D3D;
+      --muted: #6B7C93; --success: #38A169; --danger: #E53E3E;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray); color: var(--text); min-height: 100vh; }
+
+    .header { background: var(--primary); padding: 32px 20px 28px; text-align: center; }
+    .header-emoji { font-size: 44px; margin-bottom: 12px; }
+    .header-title { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+    .header-date { font-size: 14px; color: var(--accent); margin-bottom: 4px; }
+    .header-lieu { font-size: 13px; color: rgba(255,255,255,0.65); }
+
+    .card { background: var(--white); border-radius: 20px; margin: 16px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .card-title { font-size: 18px; font-weight: 700; color: var(--text); text-align: center; margin-bottom: 20px; }
+
+    .statut-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .statut-btn { padding: 14px; border-radius: 12px; border: 2px solid var(--border); background: var(--white); font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; color: var(--text); transition: all 0.15s; }
+    .statut-btn.selected-confirme { background: var(--success); border-color: var(--success); color: var(--white); }
+    .statut-btn.selected-decline { background: var(--danger); border-color: var(--danger); color: var(--white); }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .field input, .field textarea, .field select {
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 15px; color: var(--text);
+      background: var(--gray); font-family: inherit;
+    }
+    .field textarea { resize: none; min-height: 80px; }
+    .field input:focus, .field textarea:focus { outline: none; border-color: var(--primary); }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .toggle-row { display: flex; gap: 10px; margin-bottom: 14px; }
+    .toggle-chip { flex: 1; padding: 12px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--white); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; color: var(--text); }
+    .toggle-chip.active { background: var(--primary); border-color: var(--primary); color: var(--white); }
+
+    .submit-btn { width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+    .submit-btn.confirme { background: var(--primary); color: var(--white); }
+    .submit-btn.decline { background: var(--danger); color: var(--white); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4); border-top-color: var(--white); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error { background: #fff5f5; border: 1px solid #fed7d7; border-radius: 10px; padding: 12px; color: var(--danger); font-size: 14px; margin-top: 10px; display: none; text-align: center; }
+    .error.show { display: block; }
+
+    .confirm-page { display: none; }
+    .confirm-page.show { display: block; }
+    .confirm-hero { background: var(--primary); padding: 48px 24px; text-align: center; }
+    .confirm-emoji { font-size: 60px; margin-bottom: 16px; }
+    .confirm-title { font-size: 26px; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+    .confirm-name { font-size: 16px; color: var(--accent); }
+    .confirm-card { background: var(--white); border-radius: 20px; margin: 16px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .confirm-card-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 16px; text-align: center; }
+    .confirm-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+    .confirm-row:last-child { border-bottom: none; }
+    .confirm-lbl { font-size: 13px; color: var(--muted); }
+    .confirm-val { font-size: 13px; font-weight: 600; color: var(--text); text-align: right; max-width: 60%; }
+    .reminder-box { background: rgba(27,58,92,0.06); border-radius: 12px; padding: 14px; margin: 0 16px 16px; text-align: center; font-size: 13px; color: var(--primary); line-height: 1.6; }
+    .thank-you { text-align: center; padding: 16px 24px 32px; font-size: 15px; color: var(--muted); line-height: 1.7; }
+
+    .info-bar { background: var(--white); margin: 0 16px 16px; border-radius: 16px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .info-bar-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+    .info-item { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+    .info-item:last-child { border-bottom: none; }
+    .info-lbl { color: var(--muted); }
+    .info-val { color: var(--text); font-weight: 500; }
+
+    .closed { text-align: center; padding: 60px 32px; }
+    .closed-emoji { font-size: 52px; margin-bottom: 16px; }
+    .closed-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .closed-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    .footer { text-align: center; padding: 20px; color: var(--muted); font-size: 12px; }
+    .footer span { color: var(--accent); font-weight: 600; }
+
+    .loading { text-align: center; padding: 80px 20px; color: var(--muted); font-size: 15px; }
+    .loading-spinner { display: block; width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  </style>
+</head>
+<body>
+
+<div id="loadingView" class="loading">
+  <span class="loading-spinner"></span>
+  Chargement de votre invitation...
+</div>
+
+<div id="closedView" style="display:none">
+  <div class="header">
+    <div class="header-emoji">💍</div>
+    <div class="header-title" id="closedTitle">Invitation</div>
+  </div>
+  <div class="closed">
+    <div class="closed-emoji">🔒</div>
+    <div class="closed-title">Formulaire fermé</div>
+    <div class="closed-sub" id="closedMsg">Ce formulaire RSVP est fermé ou n'est plus disponible.</div>
+  </div>
+</div>
+
+<!-- Formulaire RSVP -->
+<div id="formView" style="display:none">
+  <div class="header">
+    <div class="header-emoji">💍</div>
+    <div class="header-title" id="formTitle">Mariage</div>
+    <div class="header-date" id="formDate"></div>
+    <div class="header-lieu" id="formLieu"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Confirmez votre présence</div>
+
+    <!-- Statut présence -->
+    <div class="statut-row">
+      <button class="statut-btn" id="btnConfirme" onclick="setStatut('CONFIRME')">
+        ✅ Je serai présent(e)
+      </button>
+      <button class="statut-btn" id="btnDecline" onclick="setStatut('DECLINE')">
+        ❌ Je ne pourrai pas venir
+      </button>
+    </div>
+
+    <!-- Nom / Prénom -->
+    <div class="row-2">
+      <div class="field">
+        <label>Prénom *</label>
+        <input type="text" id="prenom" placeholder="Kokou"/>
+      </div>
+      <div class="field">
+        <label>Nom *</label>
+        <input type="text" id="nom" placeholder="Mensah"/>
+      </div>
+    </div>
+
+    <!-- WhatsApp -->
+    <div class="field">
+      <label>WhatsApp <span style="color:var(--muted);font-weight:400">(pour rappel J-7)</span></label>
+      <input type="tel" id="whatsapp" placeholder="+228 90 00 00 00"/>
+    </div>
+
+    <!-- Champs conditionnels -->
+    <div id="confirmFields" style="display:none">
+      <div class="field">
+        <label>Nombre d'accompagnants</label>
+        <input type="number" id="nombreAccompa" placeholder="0" min="0" value="0"/>
+      </div>
+
+      <div class="field">
+        <label>Régime alimentaire</label>
+        <input type="text" id="regimeAliment" placeholder="Ex: Végétarien, Halal..."/>
+      </div>
+
+      <div class="field">
+        <label>Besoins logistiques</label>
+        <div class="toggle-row">
+          <button class="toggle-chip" id="btnTransport" onclick="toggleChip('transport')">🚗 Transport</button>
+          <button class="toggle-chip" id="btnHebergement" onclick="toggleChip('hebergement')">🏨 Hébergement</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message aux mariés -->
+    <div class="field">
+      <label>Message aux mariés 💌</label>
+      <textarea id="message" placeholder="Vos vœux, un mot doux..." maxlength="500"></textarea>
+    </div>
+
+    <div class="error" id="errorMsg"></div>
+
+    <button class="submit-btn confirme" id="submitBtn" onclick="submitRsvp()" disabled>
+      Sélectionnez votre réponse
+    </button>
+  </div>
+
+  <div class="info-bar" id="infoBar" style="display:none">
+    <div class="info-bar-title">ℹ️ Informations pratiques</div>
+    <div id="infoItems"></div>
+  </div>
+
+  <div class="footer">Propulsé par <span>WeddMate</span> 💍</div>
+</div>
+
+<!-- Page confirmation -->
+<div id="confirmView" class="confirm-page">
+  <div class="confirm-hero">
+    <div class="confirm-emoji" id="confirmEmoji">🎉</div>
+    <div class="confirm-title" id="confirmTitle">Présence confirmée !</div>
+    <div class="confirm-name" id="confirmName"></div>
+  </div>
+
+  <div class="confirm-card">
+    <div class="confirm-card-title">💍 Détails du mariage</div>
+    <div id="confirmDetails"></div>
+  </div>
+
+  <div class="reminder-box" id="reminderBox" style="display:none">
+    📱 Un rappel WhatsApp vous sera envoyé 7 jours avant le mariage.
+  </div>
+
+  <div class="thank-you" id="thankYou"></div>
+
+  <div class="footer">Propulsé par <span>WeddMate</span> 💍</div>
+</div>
+
+<script>
+  const slug = window.location.pathname.split('/rsvp/')[1]?.replace(/\/$/, '')
+  const API = window.location.origin
+  let weddingInfo = null
+  let statut = null
+  let transport = false
+  let hebergement = false
+
+  //Initialisation : charger les infos du mariage et afficher le formulaire
+  window.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const res = await fetch(`${API}/rsvp/${slug}/info`)
+      const json = await res.json()
+
+      document.getElementById('loadingView').style.display = 'none'
+
+      if (!res.ok) {
+        document.getElementById('closedMsg').textContent = json.error || 'Formulaire non disponible.'
+        document.getElementById('closedView').style.display = 'block'
+        return
+      }
+
+
+
+      weddingInfo = json.data
+      renderForm(weddingInfo)
+      document.getElementById('formView').style.display = 'block'
+
+    } catch (e) {
+      document.getElementById('loadingView').style.display = 'none'
+      document.getElementById('closedMsg').textContent = 'Impossible de charger le formulaire.'
+      document.getElementById('closedView').style.display = 'block'
+    }
+  })
+
+  function renderForm(data) {
+    const date = new Date(data.dateJourJ).toLocaleDateString('fr-FR', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    })
+    document.getElementById('formTitle').textContent = data.nomCeremonie
+    document.getElementById('formDate').textContent = '📅 ' + date
+    if (data.lieuCeremonie) {
+      document.getElementById('formLieu').textContent = '📍 ' + data.lieuCeremonie
+    }
+
+    // Info bar
+    const items = []
+    if (data.heureCeremonie) items.push({ lbl: '⛪ Cérémonie', val: data.heureCeremonie })
+    if (data.heureReception) items.push({ lbl: '🥂 Réception', val: data.heureReception })
+    if (data.lieuCeremonie) items.push({ lbl: '📍 Lieu cérémonie', val: data.lieuCeremonie })
+    if (data.lieuReception) items.push({ lbl: '🏛️ Lieu réception', val: data.lieuReception })
+    if (items.length > 0) {
+      document.getElementById('infoBar').style.display = 'block'
+      document.getElementById('infoItems').innerHTML = items.map(i =>
+        `<div class="info-item"><span class="info-lbl">${i.lbl}</span><span class="info-val">${i.val}</span></div>`
+      ).join('')
+    }
+  }
+
+  //Statut
+  function setStatut(s) {
+    statut = s
+    document.getElementById('btnConfirme').className = 'statut-btn' + (s === 'CONFIRME' ? ' selected-confirme' : '')
+    document.getElementById('btnDecline').className = 'statut-btn' + (s === 'DECLINE' ? ' selected-decline' : '')
+    document.getElementById('confirmFields').style.display = s === 'CONFIRME' ? 'block' : 'none'
+    const btn = document.getElementById('submitBtn')
+    btn.disabled = false
+    btn.className = 'submit-btn ' + (s === 'CONFIRME' ? 'confirme' : 'decline')
+    btn.textContent = s === 'CONFIRME' ? '🎉 Confirmer ma présence' : '😢 Envoyer ma réponse'
+  }
+
+  function toggleChip(field) {
+    if (field === 'transport') {
+      transport = !transport
+      document.getElementById('btnTransport').className = 'toggle-chip' + (transport ? ' active' : '')
+    } else {
+      hebergement = !hebergement
+      document.getElementById('btnHebergement').className = 'toggle-chip' + (hebergement ? ' active' : '')
+    }
+  }
+
+  //Soumettre le formulaire
+  async function submitRsvp() {
+    const prenom = document.getElementById('prenom').value.trim()
+    const nom = document.getElementById('nom').value.trim()
+    const whatsapp = document.getElementById('whatsapp').value.trim()
+    const nombreAccompa = parseInt(document.getElementById('nombreAccompa')?.value || '0') || 0
+    const regimeAliment = document.getElementById('regimeAliment')?.value.trim()
+    const message = document.getElementById('message').value.trim()
+
+    const errEl = document.getElementById('errorMsg')
+    errEl.classList.remove('show')
+
+    if (!statut) { errEl.textContent = 'Veuillez sélectionner votre réponse.'; errEl.classList.add('show'); return }
+    if (!prenom) { errEl.textContent = 'Le prénom est requis.'; errEl.classList.add('show'); return }
+    if (!nom) { errEl.textContent = 'Le nom est requis.'; errEl.classList.add('show'); return }
+
+    const btn = document.getElementById('submitBtn')
+    btn.disabled = true
+    btn.innerHTML = '<span class="spinner"></span> Envoi en cours...'
+
+    try {
+      const body = {
+        prenom, nom, statut,
+        whatsapp: whatsapp || undefined,
+        nombreAccompa,
+        regimeAliment: regimeAliment || undefined,
+        transport,
+        hebergement,
+        messageAuxMaries: message || undefined,
+      }
+
+      const res = await fetch(`${API}/rsvp/${slug}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'Erreur lors de la soumission.')
+
+      showConfirmation(prenom, nom, statut, whatsapp, json.data.weddingDetails)
+
+    } catch (e) {
+      btn.disabled = false
+      btn.textContent = statut === 'CONFIRME' ? '🎉 Confirmer ma présence' : '😢 Envoyer ma réponse'
+      errEl.textContent = '❌ ' + (e.message || 'Erreur. Veuillez réessayer.')
+      errEl.classList.add('show')
+    }
+  }
+
+  //Page confirmation
+  function showConfirmation(prenom, nom, statut, whatsapp, details) {
+    document.getElementById('formView').style.display = 'none'
+    const confirmView = document.getElementById('confirmView')
+    confirmView.classList.add('show')
+
+    const isConfirmed = statut === 'CONFIRME'
+    document.getElementById('confirmEmoji').textContent = isConfirmed ? '🎉' : '😢'
+    document.getElementById('confirmTitle').textContent = isConfirmed ? 'Présence confirmée !' : 'Réponse enregistrée'
+    document.getElementById('confirmName').textContent = prenom + ' ' + nom
+
+    if (details) {
+      const date = new Date(details.dateJourJ).toLocaleDateString('fr-FR', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      })
+      const rows = [
+        { lbl: '💍 Mariage', val: details.nomCeremonie },
+        { lbl: '📅 Date', val: date },
+        details.heureCeremonie && { lbl: '⛪ Cérémonie', val: details.heureCeremonie },
+        details.heureReception && { lbl: '🥂 Réception', val: details.heureReception },
+        details.lieuCeremonie && { lbl: '📍 Lieu cérémonie', val: details.lieuCeremonie },
+        details.lieuReception && { lbl: '🏛️ Lieu réception', val: details.lieuReception },
+      ].filter(Boolean)
+
+      document.getElementById('confirmDetails').innerHTML = rows.map(r =>
+        `<div class="confirm-row"><span class="confirm-lbl">${r.lbl}</span><span class="confirm-val">${r.val}</span></div>`
+      ).join('')
+    }
+
+    if (isConfirmed && whatsapp) {
+      document.getElementById('reminderBox').style.display = 'block'
+    }
+
+    document.getElementById('thankYou').textContent = isConfirmed
+      ? 'Merci ! Nous avons hâte de vous voir le jour J. 💍'
+      : 'Merci pour votre réponse. Vous serez regretté(e) !'
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+</script>
+</body>
+</html>

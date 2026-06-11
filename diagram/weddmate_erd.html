@@ -1,0 +1,277 @@
+
+<style>
+#erd { width: 100%; overflow-x: auto; }
+</style>
+<div id="erd"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor:          dark ? '#9c9a92' : '#73726c',
+    textColor:          dark ? '#c2c0b6' : '#3d3d3a',
+    primaryColor:       dark ? '#1e3a5f' : '#e6f1fb',
+    primaryTextColor:   dark ? '#b5d4f4' : '#0c447c',
+    primaryBorderColor: dark ? '#2a5a8a' : '#85b7eb',
+    secondaryColor:     dark ? '#1a3d2e' : '#e1f5ee',
+    secondaryTextColor: dark ? '#9fe1cb' : '#0f6e56',
+    secondaryBorderColor: dark ? '#0f6e56' : '#5dcaa5',
+    tertiaryColor:      dark ? '#412402' : '#faeeda',
+    tertiaryTextColor:  dark ? '#fac775' : '#633806',
+    tertiaryBorderColor:dark ? '#854f0b' : '#ef9f27',
+  },
+});
+
+const diagram = `erDiagram
+  USER {
+    string id PK
+    string email UK
+    string telephone UK
+    string motDePasse
+    string nom
+    string prenom
+    string role
+    string avatarUrl
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  SESSION {
+    string id PK
+    string userId FK
+    string token UK
+    datetime expiresAt
+    datetime createdAt
+  }
+
+  WEDDING {
+    string id PK
+    string slug UK
+    string nomCeremonie
+    datetime dateJourJ
+    string heureCeremonie
+    string heureReception
+    string lieuCeremonie
+    string lieuReception
+    string statut
+    float budgetTotal
+    string devise
+    int nombreInvites
+    boolean rsvpOuvert
+    boolean galerieOuverte
+    datetime rsvpDateLimite
+    string notes
+    string plannerId FK
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  WEDDING_COUPLE {
+    string id PK
+    string weddingId FK
+    string userId FK
+    string role
+    datetime createdAt
+  }
+
+  PRESTATAIRE {
+    string id PK
+    string userId FK
+    string nomEntreprise
+    string nomContact
+    string telephone
+    string email
+    string whatsapp
+    string categorie
+    string description
+    string siteWeb
+    string ville
+    float noteGlobale
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  WEDDING_PRESTATAIRE {
+    string id PK
+    string weddingId FK
+    string prestataireId FK
+    string statut
+    float montantDevis
+    float montantAcompte
+    datetime dateAcompte
+    float montantSolde
+    datetime dateSolde
+    datetime heureArrivee
+    datetime heureDepart
+    string lieuIntervention
+    string notesContrat
+    boolean ficheConfirmee
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  EVALUATION {
+    string id PK
+    string prestataireId FK
+    string weddingId FK
+    int note
+    string commentaire
+    datetime createdAt
+  }
+
+  BUDGET_ITEM {
+    string id PK
+    string weddingId FK
+    string categorie
+    string libelle
+    float montantPrevu
+    float montantPaye
+    string statut
+    datetime datePaiement
+    string notes
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  INVITE {
+    string id PK
+    string weddingId FK
+    string nom
+    string prenom
+    string telephone
+    string whatsapp
+    string statut
+    int nombreAccompa
+    string tableAssignee
+    string regimeAliment
+    boolean transport
+    boolean hebergement
+    string cote
+    string messageAuxMaries
+    datetime rsvpAt
+    string rsvpSource
+    boolean rappelJ7Envoye
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  PHOTO_GALERIE {
+    string id PK
+    string weddingId FK
+    string url
+    string thumbnailUrl
+    int taille
+    string uploadePar
+    string whatsappUpl
+    boolean validee
+    string caption
+    datetime createdAt
+  }
+
+  DOCUMENT {
+    string id PK
+    string weddingId FK
+    string nom
+    string type
+    string url
+    int taille
+    datetime createdAt
+  }
+
+  RAPPEL {
+    string id PK
+    string weddingId FK
+    string weddingPrestataireId FK
+    string type
+    string canal
+    string destinataire
+    string messagePersonna
+    datetime dateEnvoi
+    string statut
+    string erreurMessage
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  TACHE {
+    string id PK
+    string weddingId FK
+    string titre
+    string description
+    datetime echeance
+    boolean faite
+    int priorite
+    string categorie
+    datetime createdAt
+    datetime updatedAt
+  }
+
+  NOTIFICATION {
+    string id PK
+    string userId FK
+    string weddingId FK
+    string titre
+    string message
+    boolean lue
+    string lien
+    datetime createdAt
+  }
+
+  USER ||--o{ SESSION : "ouvre"
+  USER ||--o{ WEDDING_COUPLE : "participe"
+  USER |o--o{ WEDDING : "planifie (planner)"
+  WEDDING ||--o{ WEDDING_COUPLE : "implique"
+  WEDDING ||--o{ WEDDING_PRESTATAIRE : "gère"
+  WEDDING ||--o{ BUDGET_ITEM : "contient"
+  WEDDING ||--o{ INVITE : "liste"
+  WEDDING ||--o{ PHOTO_GALERIE : "possède"
+  WEDDING ||--o{ DOCUMENT : "stocke"
+  WEDDING ||--o{ RAPPEL : "programme"
+  WEDDING ||--o{ TACHE : "suit"
+  WEDDING ||--o{ NOTIFICATION : "génère"
+  PRESTATAIRE ||--o{ WEDDING_PRESTATAIRE : "intervient"
+  PRESTATAIRE ||--o{ EVALUATION : "reçoit"
+  PRESTATAIRE |o--o| USER : "peut avoir"
+  WEDDING_PRESTATAIRE ||--o{ RAPPEL : "déclenche"
+  USER ||--o{ NOTIFICATION : "reçoit"
+`;
+
+const { svg } = await mermaid.render('erd-svg', diagram);
+document.getElementById('erd').innerHTML = svg;
+document.querySelectorAll('#erd svg').forEach(s => {
+  s.style.width = '100%';
+  s.style.maxWidth = '100%';
+  s.style.minWidth = '900px';
+});
+
+document.querySelectorAll('#erd svg .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const attr of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+    if (firstPath.hasAttribute(attr)) rect.setAttribute(attr, firstPath.getAttribute(attr));
+  }
+  firstPath.replaceWith(rect);
+});
+
+document.querySelectorAll('#erd svg .row-rect-odd path, #erd svg .row-rect-even path').forEach(p => {
+  p.setAttribute('stroke', 'none');
+});
+</script>

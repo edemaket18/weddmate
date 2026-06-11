@@ -1,0 +1,374 @@
+
+<h2 class="sr-only">Wireframes des 6 écrans principaux de l'application mobile WeddMate : Login, Dashboard, Prestataires, Budget, Invités, RSVP public.</h2>
+<style>
+.screens { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; padding:1rem 0; }
+.phone { width:200px; background:var(--color-background-primary); border:1.5px solid var(--color-border-secondary); border-radius:24px; padding:12px 10px 16px; flex-shrink:0; }
+.notch { width:60px; height:8px; background:var(--color-border-secondary); border-radius:6px; margin:0 auto 14px; }
+.screen-label { font-size:10px; font-weight:500; color:var(--color-text-secondary); text-align:center; text-transform:uppercase; letter-spacing:0.6px; margin:8px 0 0; }
+.bar { height:6px; border-radius:3px; background:var(--color-border-tertiary); margin-bottom:6px; }
+.bar-sm { width:60%; }
+.bar-md { width:80%; }
+.bar-lg { width:100%; }
+.bar-accent { background:var(--color-background-info); }
+.bar-success { background:var(--color-background-success); }
+.bar-warn { background:var(--color-background-warning); }
+.row { display:flex; gap:6px; margin-bottom:6px; align-items:center; }
+.avatar { width:28px; height:28px; border-radius:50%; background:var(--color-background-info); flex-shrink:0; }
+.box { border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); padding:6px 8px; margin-bottom:6px; }
+.pill { display:inline-block; height:16px; border-radius:8px; }
+.p-sm { width:40px; }
+.p-md { width:60px; }
+.p-lg { width:90px; }
+.p-info { background:var(--color-background-info); }
+.p-success { background:var(--color-background-success); }
+.p-warn { background:var(--color-background-warning); }
+.p-gray { background:var(--color-background-secondary); }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:6px; }
+.stat { background:var(--color-background-secondary); border-radius:var(--border-radius-md); padding:5px 6px; }
+.stat-val { height:10px; width:50%; background:var(--color-border-secondary); border-radius:3px; margin-bottom:3px; }
+.stat-lab { height:6px; width:80%; background:var(--color-border-tertiary); border-radius:3px; }
+.input-mock { height:28px; border:0.5px solid var(--color-border-secondary); border-radius:var(--border-radius-md); margin-bottom:6px; background:var(--color-background-secondary); }
+.btn-mock { height:28px; border-radius:var(--border-radius-md); margin-bottom:6px; display:flex; align-items:center; justify-content:center; }
+.btn-primary { background:var(--color-background-info); }
+.btn-outline { border:0.5px solid var(--color-border-secondary); background:transparent; }
+.divider { height:0.5px; background:var(--color-border-tertiary); margin:6px 0; }
+.tabbar { display:flex; justify-content:space-around; padding-top:8px; border-top:0.5px solid var(--color-border-tertiary); margin-top:8px; }
+.tabicon { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.tabicon i { font-size:14px; color:var(--color-text-secondary); }
+.tabicon i.active { color:var(--color-text-info); }
+.tabdot { width:4px; height:4px; border-radius:50%; background:var(--color-background-info); }
+.progress-track { height:4px; background:var(--color-border-tertiary); border-radius:2px; margin:4px 0 6px; }
+.progress-fill { height:4px; border-radius:2px; }
+.section-hdr { height:7px; width:40%; background:var(--color-border-secondary); border-radius:3px; margin-bottom:6px; }
+.item-row { display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:0.5px solid var(--color-border-tertiary); }
+.item-row:last-child { border-bottom:none; }
+.dot-status { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.circle-empty { border:1.5px solid var(--color-border-secondary); border-radius:50%; width:14px; height:14px; flex-shrink:0; }
+.circle-check { border-radius:50%; width:14px; height:14px; flex-shrink:0; background:var(--color-background-success); }
+.qr-mock { width:60px; height:60px; border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); margin:0 auto 6px; display:flex; align-items:center; justify-content:center; background:var(--color-background-secondary); }
+.tabs-inline { display:flex; gap:4px; margin-bottom:6px; }
+.tab-i { flex:1; height:20px; border-radius:var(--border-radius-md); background:var(--color-background-secondary); }
+.tab-i.on { background:var(--color-background-info); }
+</style>
+
+<div class="screens">
+
+  <!-- 1 LOGIN -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div style="text-align:center; margin-bottom:12px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--color-background-info); margin:0 auto 6px;"></div>
+        <div class="bar bar-sm" style="margin:0 auto 3px;"></div>
+        <div class="bar" style="width:35%; margin:0 auto;"></div>
+      </div>
+      <div class="bar bar-sm" style="margin-bottom:4px;"></div>
+      <div class="input-mock"></div>
+      <div class="bar bar-sm" style="margin-bottom:4px;"></div>
+      <div class="input-mock"></div>
+      <div class="btn-mock btn-primary"></div>
+      <div class="divider"></div>
+      <div style="display:flex; justify-content:center; gap:6px;">
+        <div class="bar" style="width:40%;"></div>
+        <div class="bar bar-accent" style="width:30%;"></div>
+      </div>
+    </div>
+    <p class="screen-label">Login</p>
+  </div>
+
+  <!-- 2 DASHBOARD -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="row">
+        <div class="avatar"></div>
+        <div style="flex:1;">
+          <div class="bar bar-md"></div>
+          <div class="bar bar-sm" style="margin-top:3px;"></div>
+        </div>
+        <i class="ti ti-bell" style="font-size:16px; color:var(--color-text-secondary);" aria-hidden="true"></i>
+      </div>
+      <div class="box" style="text-align:center; margin-bottom:8px;">
+        <div class="bar" style="width:50%; margin:0 auto 4px;"></div>
+        <div class="bar bar-accent" style="width:35%; height:10px; margin:0 auto 4px; border-radius:4px;"></div>
+        <div class="bar bar-sm" style="margin:0 auto;"></div>
+      </div>
+      <div class="grid2">
+        <div class="stat"><div class="stat-val" style="background:var(--color-background-info);"></div><div class="stat-lab"></div></div>
+        <div class="stat"><div class="stat-val" style="background:var(--color-background-success);"></div><div class="stat-lab"></div></div>
+        <div class="stat"><div class="stat-val" style="background:var(--color-background-warning);"></div><div class="stat-lab"></div></div>
+        <div class="stat"><div class="stat-val" style="background:var(--color-background-danger);"></div><div class="stat-lab"></div></div>
+      </div>
+      <div class="section-hdr"></div>
+      <div class="box">
+        <div class="item-row">
+          <div class="circle-check"></div>
+          <div class="bar bar-md"></div>
+        </div>
+        <div class="item-row">
+          <div class="circle-check"></div>
+          <div class="bar bar-lg"></div>
+        </div>
+        <div class="item-row">
+          <div class="circle-empty"></div>
+          <div class="bar bar-md"></div>
+        </div>
+        <div class="item-row">
+          <div class="circle-empty"></div>
+          <div class="bar bar-sm"></div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tabicon"><i class="ti ti-home active" aria-hidden="true"></i><div class="tabdot"></div></div>
+        <div class="tabicon"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-wallet" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-mail" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-photo" aria-hidden="true"></i></div>
+      </div>
+    </div>
+    <p class="screen-label">Dashboard</p>
+  </div>
+
+  <!-- 3 PRESTATAIRES -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="row" style="margin-bottom:8px;">
+        <div class="bar" style="flex:1;"></div>
+        <div class="btn-mock btn-primary" style="width:28px; height:22px; margin:0; border-radius:var(--border-radius-md);"></div>
+      </div>
+      <div class="tabs-inline">
+        <div class="tab-i on"></div>
+        <div class="tab-i"></div>
+        <div class="tab-i"></div>
+      </div>
+      <div class="box">
+        <div class="item-row">
+          <div class="dot-status" style="background:var(--color-text-success);"></div>
+          <div style="flex:1;"><div class="bar bar-md"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-success"></div>
+        </div>
+        <div class="item-row">
+          <div class="dot-status" style="background:var(--color-text-warning);"></div>
+          <div style="flex:1;"><div class="bar bar-lg"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-warn"></div>
+        </div>
+        <div class="item-row">
+          <div class="dot-status" style="background:var(--color-text-info);"></div>
+          <div style="flex:1;"><div class="bar bar-md"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-info"></div>
+        </div>
+        <div class="item-row">
+          <div class="dot-status" style="background:var(--color-border-secondary);"></div>
+          <div style="flex:1;"><div class="bar bar-md"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-gray"></div>
+        </div>
+        <div class="item-row">
+          <div class="dot-status" style="background:var(--color-text-success);"></div>
+          <div style="flex:1;"><div class="bar bar-sm"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-success"></div>
+        </div>
+      </div>
+      <div class="section-hdr" style="margin-top:6px;"></div>
+      <div class="progress-track"><div class="progress-fill" style="width:65%; background:var(--color-text-success);"></div></div>
+      <div class="tabbar">
+        <div class="tabicon"><i class="ti ti-home" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-users active" aria-hidden="true"></i><div class="tabdot"></div></div>
+        <div class="tabicon"><i class="ti ti-wallet" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-mail" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-photo" aria-hidden="true"></i></div>
+      </div>
+    </div>
+    <p class="screen-label">Prestataires</p>
+  </div>
+
+  <!-- 4 BUDGET -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="bar bar-md" style="margin-bottom:8px;"></div>
+      <div class="box" style="margin-bottom:8px;">
+        <div class="grid2" style="margin-bottom:0;">
+          <div style="text-align:center;">
+            <div class="bar bar-accent" style="height:8px; border-radius:4px; margin:0 auto 3px; width:70%;"></div>
+            <div class="bar bar-sm" style="margin:0 auto;"></div>
+          </div>
+          <div style="text-align:center;">
+            <div class="bar bar-success" style="height:8px; border-radius:4px; margin:0 auto 3px; width:70%;"></div>
+            <div class="bar bar-sm" style="margin:0 auto;"></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="progress-track"><div class="progress-fill" style="width:42%; background:var(--color-text-info);"></div></div>
+        <div class="bar bar-sm"></div>
+      </div>
+      <div class="section-hdr"></div>
+      <div class="box">
+        <div class="item-row">
+          <div class="pill p-sm p-info"></div>
+          <div style="flex:1;"><div class="bar bar-md"></div></div>
+          <div class="bar" style="width:30%;"></div>
+        </div>
+        <div class="item-row">
+          <div class="pill p-sm p-success"></div>
+          <div style="flex:1;"><div class="bar bar-sm"></div></div>
+          <div class="bar" style="width:25%;"></div>
+        </div>
+        <div class="item-row">
+          <div class="pill p-sm p-warn"></div>
+          <div style="flex:1;"><div class="bar bar-md"></div></div>
+          <div class="bar" style="width:30%;"></div>
+        </div>
+        <div class="item-row">
+          <div class="pill p-sm p-gray"></div>
+          <div style="flex:1;"><div class="bar bar-lg"></div></div>
+          <div class="bar" style="width:20%;"></div>
+        </div>
+        <div class="item-row">
+          <div class="pill p-sm p-success"></div>
+          <div style="flex:1;"><div class="bar bar-sm"></div></div>
+          <div class="bar" style="width:25%;"></div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tabicon"><i class="ti ti-home" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-wallet active" aria-hidden="true"></i><div class="tabdot"></div></div>
+        <div class="tabicon"><i class="ti ti-mail" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-photo" aria-hidden="true"></i></div>
+      </div>
+    </div>
+    <p class="screen-label">Budget</p>
+  </div>
+
+  <!-- 5 INVITÉS -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="grid2" style="margin-bottom:8px;">
+        <div class="stat"><div class="stat-val" style="background:var(--color-background-success);"></div><div class="stat-lab"></div></div>
+        <div class="stat"><div class="stat-val" style="background:var(--color-background-danger);"></div><div class="stat-lab"></div></div>
+      </div>
+      <div class="tabs-inline">
+        <div class="tab-i on"></div>
+        <div class="tab-i"></div>
+        <div class="tab-i"></div>
+        <div class="tab-i"></div>
+      </div>
+      <div class="box">
+        <div class="item-row">
+          <div class="avatar" style="width:22px; height:22px;"></div>
+          <div style="flex:1;"><div class="bar bar-md"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-success"></div>
+        </div>
+        <div class="item-row">
+          <div class="avatar" style="width:22px; height:22px;"></div>
+          <div style="flex:1;"><div class="bar bar-lg"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-success"></div>
+        </div>
+        <div class="item-row">
+          <div class="avatar" style="width:22px; height:22px;"></div>
+          <div style="flex:1;"><div class="bar bar-md"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-warn"></div>
+        </div>
+        <div class="item-row">
+          <div class="avatar" style="width:22px; height:22px;"></div>
+          <div style="flex:1;"><div class="bar bar-sm"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-gray"></div>
+        </div>
+        <div class="item-row">
+          <div class="avatar" style="width:22px; height:22px;"></div>
+          <div style="flex:1;"><div class="bar bar-md"></div><div class="bar bar-sm" style="margin-top:3px;"></div></div>
+          <div class="pill p-sm p-success"></div>
+        </div>
+      </div>
+      <div class="btn-mock btn-outline" style="margin-top:4px; height:22px; border-radius:var(--border-radius-md);"></div>
+      <div class="tabbar">
+        <div class="tabicon"><i class="ti ti-home" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-wallet" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-mail active" aria-hidden="true"></i><div class="tabdot"></div></div>
+        <div class="tabicon"><i class="ti ti-photo" aria-hidden="true"></i></div>
+      </div>
+    </div>
+    <p class="screen-label">Invités</p>
+  </div>
+
+  <!-- 6 RSVP PUBLIC -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div style="text-align:center; margin-bottom:10px;">
+        <div class="bar" style="width:60%; margin:0 auto 3px;"></div>
+        <div class="bar bar-accent" style="width:40%; height:7px; margin:0 auto 3px; border-radius:3px;"></div>
+        <div class="bar bar-sm" style="margin:0 auto;"></div>
+      </div>
+      <div class="bar bar-sm" style="margin-bottom:3px;"></div>
+      <div class="input-mock" style="height:22px;"></div>
+      <div class="bar bar-sm" style="margin-bottom:3px;"></div>
+      <div class="input-mock" style="height:22px;"></div>
+      <div class="bar bar-sm" style="margin-bottom:3px;"></div>
+      <div class="tabs-inline" style="gap:4px;">
+        <div class="tab-i on"></div>
+        <div class="tab-i"></div>
+        <div class="tab-i"></div>
+      </div>
+      <div class="bar bar-sm" style="margin-bottom:3px;"></div>
+      <div class="input-mock" style="height:22px;"></div>
+      <div class="bar bar-sm" style="margin-bottom:3px;"></div>
+      <div class="tabs-inline" style="gap:4px;">
+        <div class="tab-i on"></div>
+        <div class="tab-i"></div>
+      </div>
+      <div class="bar bar-sm" style="margin-bottom:3px;"></div>
+      <div class="input-mock" style="height:32px;"></div>
+      <div class="btn-mock btn-primary" style="margin-top:6px; height:26px;"></div>
+    </div>
+    <p class="screen-label">RSVP public</p>
+  </div>
+
+  <!-- 7 GALERIE -->
+  <div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div style="text-align:center; margin-bottom:8px;">
+        <div class="qr-mock">
+          <i class="ti ti-qrcode" style="font-size:28px; color:var(--color-text-secondary);" aria-hidden="true"></i>
+        </div>
+        <div class="bar bar-sm" style="margin:0 auto 3px;"></div>
+        <div class="bar" style="width:70%; margin:0 auto;"></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:6px;">
+        <div style="aspect-ratio:1; background:var(--color-background-secondary); border-radius:var(--border-radius-md); display:flex; align-items:center; justify-content:center;"><i class="ti ti-photo" style="font-size:14px; color:var(--color-text-secondary);" aria-hidden="true"></i></div>
+        <div style="aspect-ratio:1; background:var(--color-background-secondary); border-radius:var(--border-radius-md); display:flex; align-items:center; justify-content:center;"><i class="ti ti-photo" style="font-size:14px; color:var(--color-text-secondary);" aria-hidden="true"></i></div>
+        <div style="aspect-ratio:1; background:var(--color-background-secondary); border-radius:var(--border-radius-md); display:flex; align-items:center; justify-content:center;"><i class="ti ti-photo" style="font-size:14px; color:var(--color-text-secondary);" aria-hidden="true"></i></div>
+        <div style="aspect-ratio:1; background:var(--color-background-secondary); border-radius:var(--border-radius-md); display:flex; align-items:center; justify-content:center;"><i class="ti ti-photo" style="font-size:14px; color:var(--color-text-secondary);" aria-hidden="true"></i></div>
+        <div style="aspect-ratio:1; background:var(--color-background-secondary); border-radius:var(--border-radius-md); display:flex; align-items:center; justify-content:center;"><i class="ti ti-photo" style="font-size:14px; color:var(--color-text-secondary);" aria-hidden="true"></i></div>
+        <div style="aspect-ratio:1; background:var(--color-background-info); border-radius:var(--border-radius-md); display:flex; align-items:center; justify-content:center;"><i class="ti ti-plus" style="font-size:14px; color:var(--color-text-info);" aria-hidden="true"></i></div>
+      </div>
+      <div class="btn-mock btn-primary" style="height:26px;"></div>
+      <div class="tabbar">
+        <div class="tabicon"><i class="ti ti-home" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-wallet" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-mail" aria-hidden="true"></i></div>
+        <div class="tabicon"><i class="ti ti-photo active" aria-hidden="true"></i><div class="tabdot"></div></div>
+      </div>
+    </div>
+    <p class="screen-label">Galerie</p>
+  </div>
+
+</div>
+
+<div style="display:flex; gap:16px; flex-wrap:wrap; padding:0 1rem; margin-top:4px; font-size:12px; color:var(--color-text-secondary);">
+  <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:50%; background:var(--color-background-info); display:inline-block;"></span>Actif / sélectionné</span>
+  <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:50%; background:var(--color-background-success); display:inline-block;"></span>Confirmé</span>
+  <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; border-radius:50%; background:var(--color-background-warning); display:inline-block;"></span>En attente</span>
+  <span style="display:flex; align-items:center; gap:5px;"><span style="width:10px; height:10px; background:var(--color-background-secondary); border:0.5px solid var(--color-border-tertiary); display:inline-block;"></span>Inactif</span>
+</div>
+
+<div style="margin-top:12px; padding:0 0.5rem; display:flex; gap:8px; flex-wrap:wrap;">
+  <button style="padding:7px 14px; font-size:12px; cursor:pointer; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-secondary); background:var(--color-background-secondary); color:var(--color-text-primary);" onclick="sendPrompt('Génère le wireframe détaillé de la fiche d\'un prestataire dans WeddMate')">Fiche prestataire détaillée ↗</button>
+  <button style="padding:7px 14px; font-size:12px; cursor:pointer; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-secondary); background:var(--color-background-secondary); color:var(--color-text-primary);" onclick="sendPrompt('Génère le wireframe de la page de confirmation RSVP de WeddMate')">Page confirmation RSVP ↗</button>
+  <button style="padding:7px 14px; font-size:12px; cursor:pointer; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-secondary); background:var(--color-background-secondary); color:var(--color-text-primary);" onclick="sendPrompt('Commençons le Sprint 1 : code les routes d\'authentification dans WeddMate')">Commencer Sprint 1 — Auth ↗</button>
+</div>

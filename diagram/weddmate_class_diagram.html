@@ -1,0 +1,301 @@
+
+<h2 class="sr-only">Diagramme de classes UML complet de la plateforme WeddMate — 11 entités avec leurs attributs, méthodes et relations.</h2>
+
+<style>
+#uml { width: 100%; overflow-x: auto; }
+#uml svg { min-width: 900px; }
+.tab-row { display: flex; gap: 4px; background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 4px; margin-bottom: 1rem; }
+.utab { flex: 1; padding: 7px 10px; border: none; border-radius: var(--border-radius-md); background: transparent; color: var(--color-text-secondary); font-size: 12px; cursor: pointer; font-weight: 400; }
+.utab.active { background: var(--color-background-primary); color: var(--color-text-primary); font-weight: 500; border: 0.5px solid var(--color-border-tertiary); }
+.upanel { display: none; }
+.upanel.active { display: block; }
+button.cta { width: 100%; padding: 9px; font-size: 13px; cursor: pointer; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); margin-top: 6px; }
+button.cta:hover { background: var(--color-background-tertiary); }
+</style>
+
+<div class="tab-row">
+  <button class="utab active" onclick="showUTab('core')">Noyau (User, Wedding)</button>
+  <button class="utab" onclick="showUTab('presta')">Prestataires & Budget</button>
+  <button class="utab" onclick="showUTab('rsvp')">RSVP & Galerie</button>
+  <button class="utab" onclick="showUTab('ops')">Opérations (Rappels, Tâches)</button>
+</div>
+
+<div id="upanel-core" class="upanel active"><div id="uml-core"></div></div>
+<div id="upanel-presta" class="upanel"><div id="uml-presta"></div></div>
+<div id="upanel-rsvp" class="upanel"><div id="uml-rsvp"></div></div>
+<div id="upanel-ops" class="upanel"><div id="uml-ops"></div></div>
+
+<button class="cta" onclick="sendPrompt('Génère le diagramme de séquence du flux RSVP : de la soumission du formulaire jusqu\'au rappel WhatsApp J-7')">Prochain UML : diagramme de séquence RSVP ↗</button>
+<button class="cta" onclick="sendPrompt('Génère le diagramme de cas d\'utilisation (use case) de WeddMate')">Prochain UML : diagramme de cas d'utilisation ↗</button>
+
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+    primaryColor: dark ? '#1e3a5f' : '#e6f1fb',
+    primaryTextColor: dark ? '#b5d4f4' : '#0c447c',
+    primaryBorderColor: dark ? '#2a5a8a' : '#85b7eb',
+    secondaryColor: dark ? '#2c2c2a' : '#f1efe8',
+    tertiaryColor: dark ? '#1a3d2e' : '#e1f5ee',
+    noteBkgColor: dark ? '#412402' : '#faeeda',
+    noteTextColor: dark ? '#fac775' : '#633806',
+  },
+});
+
+const diagrams = {
+  core: `classDiagram
+    class User {
+      +String id
+      +String email
+      +String telephone
+      -String motDePasse
+      +String nom
+      +String prenom
+      +Role role
+      +String avatarUrl
+      +DateTime createdAt
+      +register() User
+      +login() String
+      +updateProfile() User
+    }
+
+    class Session {
+      +String id
+      +String userId
+      +String token
+      +DateTime expiresAt
+      +DateTime createdAt
+      +revoke() void
+      +isExpired() Boolean
+    }
+
+    class Wedding {
+      +String id
+      +String nomCeremonie
+      +String slug
+      +DateTime dateJourJ
+      +String heureCeremonie
+      +String heureReception
+      +String lieuCeremonie
+      +String lieuReception
+      +WeddingStatus statut
+      +Float budgetTotal
+      +String devise
+      +Boolean rsvpOuvert
+      +Boolean galerieOuverte
+      +DateTime rsvpDateLimite
+      +create() Wedding
+      +generateSlug() String
+      +getBudgetConsomme() Float
+      +toggleRsvp() void
+      +toggleGalerie() void
+    }
+
+    class WeddingCouple {
+      +String id
+      +String weddingId
+      +String userId
+      +String role
+      +DateTime createdAt
+    }
+
+    User "1" --> "0..*" Session : possède
+    User "1..*" --> "0..*" WeddingCouple : participe via
+    Wedding "1" --> "2" WeddingCouple : implique
+    User "0..1" --> "0..*" Wedding : planifie (planner)`,
+
+  presta: `classDiagram
+    class Prestataire {
+      +String id
+      +String userId
+      +String nomEntreprise
+      +String nomContact
+      +String telephone
+      +String whatsapp
+      +PrestaireCategorie categorie
+      +String description
+      +String ville
+      +Float noteGlobale
+      +getWeddings() Wedding[]
+      +updateNote() Float
+      +sendConfirmation() void
+    }
+
+    class WeddingPrestataire {
+      +String id
+      +String weddingId
+      +String prestataireId
+      +PrestaireStatut statut
+      +Float montantDevis
+      +Float montantAcompte
+      +DateTime dateAcompte
+      +Float montantSolde
+      +DateTime dateSolde
+      +DateTime heureArrivee
+      +Boolean ficheConfirmee
+      +confirm() void
+      +updateStatut() void
+      +getMontantRestant() Float
+    }
+
+    class BudgetItem {
+      +String id
+      +String weddingId
+      +PrestaireCategorie categorie
+      +String libelle
+      +Float montantPrevu
+      +Float montantPaye
+      +BudgetStatut statut
+      +DateTime datePaiement
+      +payer() void
+      +getEcart() Float
+    }
+
+    class Evaluation {
+      +String id
+      +String prestataireId
+      +String weddingId
+      +Int note
+      +String commentaire
+      +DateTime createdAt
+      +submit() Evaluation
+    }
+
+    Prestataire "1" --> "0..*" WeddingPrestataire : lie via
+    Prestataire "1" --> "0..*" Evaluation : reçoit
+    WeddingPrestataire "1" --> "0..*" BudgetItem : génère`,
+
+  rsvp: `classDiagram
+    class Invite {
+      +String id
+      +String weddingId
+      +String nom
+      +String prenom
+      +String telephone
+      +String whatsapp
+      +InviteStatut statut
+      +Int nombreAccompa
+      +String tableAssignee
+      +String regimeAliment
+      +Boolean transport
+      +Boolean hebergement
+      +String cote
+      +String messageAuxMaries
+      +DateTime rsvpAt
+      +String rsvpSource
+      +Boolean rappelJ7Envoye
+      +confirmer() void
+      +decliner() void
+      +assignerTable() void
+    }
+
+    class PhotoGalerie {
+      +String id
+      +String weddingId
+      +String url
+      +String thumbnailUrl
+      +Int taille
+      +String uploadePar
+      +String whatsappUpl
+      +Boolean validee
+      +String caption
+      +DateTime createdAt
+      +valider() void
+      +masquer() void
+      +getThumbnail() String
+    }
+
+    class Document {
+      +String id
+      +String weddingId
+      +String nom
+      +String type
+      +String url
+      +Int taille
+      +DateTime createdAt
+      +upload() String
+      +delete() void
+    }
+
+    Invite "0..*" --> "1" PhotoGalerie : peut uploader
+    Document "0..*" --* "1" Invite : lié à`,
+
+  ops: `classDiagram
+    class Rappel {
+      +String id
+      +String weddingId
+      +String weddingPrestataireId
+      +RappelType type
+      +NotifCanal canal
+      +String destinataire
+      +String messagePersonna
+      +DateTime dateEnvoi
+      +RappelStatut statut
+      +String erreurMessage
+      +programmer() void
+      +envoyer() void
+      +marquerEnvoye() void
+      +retry() void
+    }
+
+    class Tache {
+      +String id
+      +String weddingId
+      +String titre
+      +String description
+      +DateTime echeance
+      +Boolean faite
+      +Int priorite
+      +String categorie
+      +DateTime createdAt
+      +completer() void
+      +rouvrir() void
+      +estEnRetard() Boolean
+    }
+
+    class Notification {
+      +String id
+      +String userId
+      +String weddingId
+      +String titre
+      +String message
+      +Boolean lue
+      +String lien
+      +DateTime createdAt
+      +marquerLue() void
+      +envoyer() void
+    }
+
+    Rappel "0..*" --> "1" Notification : déclenche
+    Tache "0..*" --> "1" Notification : peut notifier`,
+};
+
+async function renderTab(tabId, containerId) {
+  const el = document.getElementById(containerId);
+  if (el.dataset.rendered) return;
+  const { svg } = await mermaid.render(containerId + '-svg', diagrams[tabId]);
+  el.innerHTML = svg;
+  el.dataset.rendered = '1';
+  el.querySelectorAll('svg').forEach(s => { s.style.width='100%'; s.style.maxWidth='100%'; });
+}
+
+window.showUTab = (name) => {
+  document.querySelectorAll('.utab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.upanel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.utab:nth-child(${['core','presta','rsvp','ops'].indexOf(name)+1})`).classList.add('active');
+  document.getElementById('upanel-' + name).classList.add('active');
+  renderTab(name, 'uml-' + name);
+};
+
+renderTab('core', 'uml-core');
+</script>

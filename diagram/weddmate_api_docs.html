@@ -1,0 +1,737 @@
+
+<style>
+.tabs { display:flex; gap:4px; background:var(--color-background-secondary); border-radius:var(--border-radius-lg); padding:4px; margin-bottom:1rem; flex-wrap:wrap; }
+.tab { flex:1; min-width:70px; padding:6px 8px; border:none; border-radius:var(--border-radius-md); background:transparent; color:var(--color-text-secondary); font-size:11px; cursor:pointer; text-align:center; }
+.tab.active { background:var(--color-background-primary); color:var(--color-text-primary); font-weight:500; border:0.5px solid var(--color-border-tertiary); }
+.panel { display:none; }
+.panel.active { display:block; }
+.endpoint { border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-lg); margin-bottom:10px; overflow:hidden; }
+.ep-header { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; background:var(--color-background-primary); }
+.ep-header:hover { background:var(--color-background-secondary); }
+.method { font-size:11px; font-weight:500; padding:2px 8px; border-radius:var(--border-radius-md); min-width:42px; text-align:center; font-family:var(--font-mono); }
+.m-get    { background:var(--color-background-success);  color:var(--color-text-success); }
+.m-post   { background:var(--color-background-info);     color:var(--color-text-info); }
+.m-patch  { background:var(--color-background-warning);  color:var(--color-text-warning); }
+.m-delete { background:var(--color-background-danger);   color:var(--color-text-danger); }
+.ep-path  { font-family:var(--font-mono); font-size:13px; color:var(--color-text-primary); flex:1; }
+.ep-desc  { font-size:11px; color:var(--color-text-secondary); }
+.lock     { font-size:13px; color:var(--color-text-secondary); }
+.ep-body  { display:none; padding:12px 14px; background:var(--color-background-secondary); border-top:0.5px solid var(--color-border-tertiary); }
+.ep-body.open { display:block; }
+.param-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
+.param-table th { text-align:left; padding:5px 8px; background:var(--color-background-tertiary); color:var(--color-text-secondary); font-weight:500; border-bottom:0.5px solid var(--color-border-tertiary); }
+.param-table td { padding:5px 8px; border-bottom:0.5px solid var(--color-border-tertiary); vertical-align:top; }
+.param-table tr:last-child td { border-bottom:none; }
+.req  { color:var(--color-text-danger); font-size:10px; font-weight:500; }
+.opt  { color:var(--color-text-secondary); font-size:10px; }
+.type { font-family:var(--font-mono); font-size:11px; color:var(--color-text-info); }
+.code-block { background:var(--color-background-tertiary); border-radius:var(--border-radius-md); padding:10px 12px; font-family:var(--font-mono); font-size:11px; color:var(--color-text-primary); margin-top:8px; white-space:pre; overflow-x:auto; }
+.section-label { font-size:11px; font-weight:500; color:var(--color-text-secondary); margin:10px 0 6px; text-transform:uppercase; letter-spacing:0.5px; }
+.badge-auth { display:inline-flex; align-items:center; gap:4px; font-size:10px; padding:2px 7px; border-radius:var(--border-radius-md); background:var(--color-background-warning); color:var(--color-text-warning); }
+.badge-pub  { display:inline-flex; align-items:center; gap:4px; font-size:10px; padding:2px 7px; border-radius:var(--border-radius-md); background:var(--color-background-success); color:var(--color-text-success); }
+.resp-row { display:flex; gap:8px; align-items:flex-start; margin-top:4px; }
+.status { font-family:var(--font-mono); font-size:11px; font-weight:500; min-width:34px; }
+.s-2 { color:var(--color-text-success); }
+.s-4 { color:var(--color-text-danger); }
+button.cta { width:100%; padding:9px; font-size:13px; cursor:pointer; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-secondary); background:var(--color-background-secondary); color:var(--color-text-primary); margin-top:8px; }
+button.cta:hover { background:var(--color-background-tertiary); }
+.info-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:12px; font-size:12px; color:var(--color-text-secondary); }
+</style>
+
+<div class="info-bar">
+  <span>Base URL :</span>
+  <code style="font-size:11px; background:var(--color-background-secondary); padding:2px 8px; border-radius:4px;">https://api.weddmate.app</code>
+  <span style="margin-left:8px;">Format :</span>
+  <code style="font-size:11px; background:var(--color-background-secondary); padding:2px 8px; border-radius:4px;">application/json</code>
+  <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Authentifié</span>
+  <span class="badge-pub"><i class="ti ti-world" aria-hidden="true"></i> Public</span>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('auth')">Auth</button>
+  <button class="tab" onclick="showTab('weddings')">Mariages</button>
+  <button class="tab" onclick="showTab('presta')">Prestataires</button>
+  <button class="tab" onclick="showTab('budget')">Budget</button>
+  <button class="tab" onclick="showTab('invites')">Invités</button>
+  <button class="tab" onclick="showTab('rsvp')">RSVP</button>
+  <button class="tab" onclick="showTab('galerie')">Galerie</button>
+  <button class="tab" onclick="showTab('rappels')">Rappels</button>
+  <button class="tab" onclick="showTab('taches')">Tâches</button>
+</div>
+
+<!-- ── AUTH ── -->
+<div id="panel-auth" class="panel active">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/auth/register</span>
+      <span class="ep-desc">Créer un compte</span>
+      <span class="badge-pub">Public</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Body</p>
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>email</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Adresse email unique</td></tr>
+        <tr><td>motDePasse</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Min 8 caractères</td></tr>
+        <tr><td>nom</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Nom de famille</td></tr>
+        <tr><td>prenom</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Prénom</td></tr>
+        <tr><td>telephone</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Numéro WhatsApp</td></tr>
+        <tr><td>role</td><td class="type">enum</td><td><span class="opt">Optionnel</span></td><td>COUPLE | PRESTATAIRE | PLANNER (défaut: COUPLE)</td></tr>
+      </table>
+      <p class="section-label">Réponses</p>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: { user, token } }</span></div>
+      <div class="resp-row"><span class="status s-4">400</span><span>Email déjà utilisé / données invalides</span></div>
+      <div class="code-block">{
+  "success": true,
+  "data": {
+    "user": { "id": "clx...", "email": "koffi@mail.com", "role": "COUPLE" },
+    "token": "eyJhbGci..."
+  }
+}</div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/auth/login</span>
+      <span class="ep-desc">Se connecter</span>
+      <span class="badge-pub">Public</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Body</p>
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>email</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Adresse email</td></tr>
+        <tr><td>motDePasse</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Mot de passe</td></tr>
+      </table>
+      <p class="section-label">Réponses</p>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: { user, token } }</span></div>
+      <div class="resp-row"><span class="status s-4">401</span><span>Email ou mot de passe incorrect</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/auth/me</span>
+      <span class="ep-desc">Profil connecté</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Headers</p>
+      <div class="code-block">Authorization: Bearer &lt;token&gt;</div>
+      <p class="section-label">Réponses</p>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: user }</span></div>
+      <div class="resp-row"><span class="status s-4">401</span><span>Token manquant ou invalide</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-patch">PATCH</span>
+      <span class="ep-path">/api/auth/password</span>
+      <span class="ep-desc">Changer mot de passe</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>ancienMotDePasse</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Mot de passe actuel</td></tr>
+        <tr><td>nouveauMotDePasse</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Min 8 caractères</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success: true }</span></div>
+      <div class="resp-row"><span class="status s-4">401</span><span>Ancien mot de passe incorrect</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── MARIAGES ── -->
+<div id="panel-weddings" class="panel">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/weddings</span>
+      <span class="ep-desc">Créer un mariage</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>nomCeremonie</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Ex: "Mariage Koffi & Ama"</td></tr>
+        <tr><td>dateJourJ</td><td class="type">datetime</td><td><span class="req">Requis</span></td><td>Date du mariage ISO 8601</td></tr>
+        <tr><td>heureCeremonie</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Ex: "10h00"</td></tr>
+        <tr><td>heureReception</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Ex: "13h00"</td></tr>
+        <tr><td>lieuCeremonie</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Lieu de la cérémonie</td></tr>
+        <tr><td>lieuReception</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Lieu de la réception</td></tr>
+        <tr><td>budgetTotal</td><td class="type">float</td><td><span class="opt">Optionnel</span></td><td>Budget prévisionnel</td></tr>
+        <tr><td>devise</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Défaut: "FCFA"</td></tr>
+        <tr><td>partenaireId</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>ID de l'autre marié(e)</td></tr>
+      </table>
+      <p class="section-label">Réponses</p>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: { wedding, slug, qrUrl } }</span></div>
+      <div class="code-block">{
+  "success": true,
+  "data": {
+    "wedding": { "id": "clx...", "slug": "koffi-ama-xk39p", ... },
+    "qrUrl": "https://storage.supabase.co/qr/koffi-ama-xk39p.png"
+  }
+}</div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings</span>
+      <span class="ep-desc">Mes mariages</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: Wedding[], meta: { total } }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings/:id</span>
+      <span class="ep-desc">Détail d'un mariage</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Params</p>
+      <table class="param-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>id</td><td class="type">string</td><td>ID du mariage</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>Wedding complet avec prestataires, budget, invités</span></div>
+      <div class="resp-row"><span class="status s-4">404</span><span>Mariage introuvable</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-patch">PATCH</span>
+      <span class="ep-path">/api/weddings/:id</span>
+      <span class="ep-desc">Modifier un mariage</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Body (tous optionnels)</p>
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Description</th></tr>
+        <tr><td>nomCeremonie</td><td class="type">string</td><td>Nouveau nom</td></tr>
+        <tr><td>dateJourJ</td><td class="type">datetime</td><td>Nouvelle date</td></tr>
+        <tr><td>rsvpOuvert</td><td class="type">boolean</td><td>Activer/désactiver le RSVP</td></tr>
+        <tr><td>galerieOuverte</td><td class="type">boolean</td><td>Activer/désactiver la galerie</td></tr>
+        <tr><td>rsvpDateLimite</td><td class="type">datetime</td><td>Date limite RSVP</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: Wedding }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings/:id/stats</span>
+      <span class="ep-desc">Statistiques dashboard</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <div class="code-block">{
+  "joursRestants": 42,
+  "budgetConsomme": 850000,
+  "budgetRestant": 1150000,
+  "invitesConfirmes": 87,
+  "invitesTotal": 120,
+  "prestatairesConfirmes": 6,
+  "prestatairesTotal": 9,
+  "tachesFaites": 14,
+  "tachesTotal": 22
+}</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── PRESTATAIRES ── -->
+<div id="panel-presta" class="panel">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/weddings/:id/prestataires</span>
+      <span class="ep-desc">Ajouter un prestataire</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>nomEntreprise</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Nom de l'entreprise</td></tr>
+        <tr><td>nomContact</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Nom du contact</td></tr>
+        <tr><td>telephone</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Numéro de téléphone</td></tr>
+        <tr><td>categorie</td><td class="type">enum</td><td><span class="req">Requis</span></td><td>TRAITEUR | PHOTOGRAPHE | DJ_MUSIQUE | ...</td></tr>
+        <tr><td>whatsapp</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Numéro WhatsApp</td></tr>
+        <tr><td>montantDevis</td><td class="type">float</td><td><span class="opt">Optionnel</span></td><td>Montant du devis</td></tr>
+        <tr><td>heureArrivee</td><td class="type">datetime</td><td><span class="opt">Optionnel</span></td><td>Heure d'arrivée prévue</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: WeddingPrestataire }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings/:id/prestataires</span>
+      <span class="ep-desc">Liste des prestataires</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Query params</p>
+      <table class="param-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>statut</td><td class="type">enum</td><td>Filtrer par statut (CONTACTE, CONFIRME...)</td></tr>
+        <tr><td>categorie</td><td class="type">enum</td><td>Filtrer par catégorie</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: WeddingPrestataire[] }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-patch">PATCH</span>
+      <span class="ep-path">/api/weddings/:id/prestataires/:prestId</span>
+      <span class="ep-desc">Modifier / payer un prestataire</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Description</th></tr>
+        <tr><td>statut</td><td class="type">enum</td><td>Nouveau statut</td></tr>
+        <tr><td>montantAcompte</td><td class="type">float</td><td>Montant acompte versé</td></tr>
+        <tr><td>montantSolde</td><td class="type">float</td><td>Montant solde versé</td></tr>
+        <tr><td>ficheConfirmee</td><td class="type">boolean</td><td>Prestataire a confirmé ses infos</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: WeddingPrestataire }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/weddings/:id/prestataires/:prestId/confirmation</span>
+      <span class="ep-desc">Envoyer fiche WhatsApp</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Déclenche</p>
+      <div class="resp-row"><span>Envoie un message WhatsApp au prestataire avec lien de confirmation de ses horaires et infos</span></div>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: { messageId } }</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── BUDGET ── -->
+<div id="panel-budget" class="panel">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/weddings/:id/budget</span>
+      <span class="ep-desc">Ajouter un item budget</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>libelle</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Ex: "Traiteur Kossivi"</td></tr>
+        <tr><td>categorie</td><td class="type">enum</td><td><span class="req">Requis</span></td><td>Catégorie prestataire</td></tr>
+        <tr><td>montantPrevu</td><td class="type">float</td><td><span class="req">Requis</span></td><td>Montant estimé</td></tr>
+        <tr><td>montantPaye</td><td class="type">float</td><td><span class="opt">Optionnel</span></td><td>Déjà payé (défaut: 0)</td></tr>
+        <tr><td>statut</td><td class="type">enum</td><td><span class="opt">Optionnel</span></td><td>PREVU | ACOMPTE | SOLDE</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: BudgetItem }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings/:id/budget</span>
+      <span class="ep-desc">Synthèse budget</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <div class="code-block">{
+  "items": [ ... ],
+  "synthese": {
+    "totalPrevu": 2000000,
+    "totalPaye": 850000,
+    "totalRestant": 1150000,
+    "parCategorie": {
+      "TRAITEUR": { "prevu": 600000, "paye": 200000 },
+      "PHOTOGRAPHE": { "prevu": 250000, "paye": 250000 }
+    }
+  }
+}</div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-patch">PATCH</span>
+      <span class="ep-path">/api/weddings/:id/budget/:itemId</span>
+      <span class="ep-desc">Modifier un item</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: BudgetItem }</span></div>
+      <div class="resp-row"><span class="status s-4">404</span><span>Item introuvable</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-delete">DELETE</span>
+      <span class="ep-path">/api/weddings/:id/budget/:itemId</span>
+      <span class="ep-desc">Supprimer un item</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success: true }</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── INVITÉS ── -->
+<div id="panel-invites" class="panel">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings/:id/invites</span>
+      <span class="ep-desc">Liste des invités</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Query params</p>
+      <table class="param-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>statut</td><td class="type">enum</td><td>EN_ATTENTE | CONFIRME | DECLINE</td></tr>
+        <tr><td>cote</td><td class="type">string</td><td>MARIE | MARIEE</td></tr>
+        <tr><td>transport</td><td class="type">boolean</td><td>Filtre besoin transport</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: Invite[], meta: { total, confirmes, declines } }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/weddings/:id/invites</span>
+      <span class="ep-desc">Ajouter un invité manuellement</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>nom</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Nom de famille</td></tr>
+        <tr><td>prenom</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Prénom</td></tr>
+        <tr><td>whatsapp</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Numéro WhatsApp</td></tr>
+        <tr><td>cote</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>MARIE | MARIEE</td></tr>
+        <tr><td>nombreAccompa</td><td class="type">int</td><td><span class="opt">Optionnel</span></td><td>Nombre d'accompagnants</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: Invite }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-patch">PATCH</span>
+      <span class="ep-path">/api/weddings/:id/invites/:inviteId/table</span>
+      <span class="ep-desc">Assigner une table</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Description</th></tr>
+        <tr><td>tableAssignee</td><td class="type">string</td><td>Ex: "Table 4" ou "Table VIP"</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: Invite }</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── RSVP ── -->
+<div id="panel-rsvp" class="panel">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/rsvp/:slug</span>
+      <span class="ep-desc">Formulaire public RSVP</span>
+      <span class="badge-pub">Public</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Params</p>
+      <table class="param-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>slug</td><td class="type">string</td><td>Ex: "koffi-ama-xk39p"</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ nomCeremonie, dateJourJ, heureCeremonie, lieuCeremonie, lieuReception }</span></div>
+      <div class="resp-row"><span class="status s-4">404</span><span>Mariage introuvable ou RSVP fermé</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/rsvp/:slug</span>
+      <span class="ep-desc">Soumettre une réponse RSVP</span>
+      <span class="badge-pub">Public</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>nom</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Nom de famille</td></tr>
+        <tr><td>prenom</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Prénom</td></tr>
+        <tr><td>statut</td><td class="type">enum</td><td><span class="req">Requis</span></td><td>CONFIRME | DECLINE</td></tr>
+        <tr><td>whatsapp</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Pour rappel J-7</td></tr>
+        <tr><td>nombreAccompa</td><td class="type">int</td><td><span class="opt">Optionnel</span></td><td>Défaut: 0</td></tr>
+        <tr><td>regimeAliment</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Végétarien, halal...</td></tr>
+        <tr><td>transport</td><td class="type">boolean</td><td><span class="opt">Optionnel</span></td><td>Besoin de transport</td></tr>
+        <tr><td>messageAuxMaries</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Message personnel</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: { invite, weddingDetails } }</span></div>
+      <div class="resp-row"><span class="status s-4">400</span><span>RSVP fermé ou date limite dépassée</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings/:id/rsvp-stats</span>
+      <span class="ep-desc">Statistiques RSVP</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <div class="code-block">{
+  "total": 120,
+  "confirmes": 87,
+  "declines": 12,
+  "enAttente": 21,
+  "totalPersonnes": 134,
+  "transport": 18,
+  "hebergement": 5,
+  "parCote": { "MARIE": 60, "MARIEE": 60 }
+}</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── GALERIE ── -->
+<div id="panel-galerie" class="panel">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/gallery/:slug</span>
+      <span class="ep-desc">Accéder à la galerie</span>
+      <span class="badge-pub">Public (QR Code)</span>
+    </div>
+    <div class="ep-body">
+      <div class="resp-row"><span class="status s-2">200</span><span>{ nomCeremonie, dateJourJ, photos: PhotoGalerie[] }</span></div>
+      <div class="resp-row"><span class="status s-4">403</span><span>Galerie non encore ouverte</span></div>
+      <div class="resp-row"><span class="status s-4">404</span><span>Mariage introuvable</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/gallery/:slug/photos</span>
+      <span class="ep-desc">Uploader une photo</span>
+      <span class="badge-pub">Public</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Body (multipart/form-data)</p>
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>photo</td><td class="type">file</td><td><span class="req">Requis</span></td><td>JPEG / PNG / WEBP — max 10 Mo</td></tr>
+        <tr><td>uploadePar</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Nom de l'uploadeur</td></tr>
+        <tr><td>caption</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Légende de la photo</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: PhotoGalerie }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-patch">PATCH</span>
+      <span class="ep-path">/api/weddings/:id/galerie/:photoId</span>
+      <span class="ep-desc">Valider / masquer une photo</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Description</th></tr>
+        <tr><td>validee</td><td class="type">boolean</td><td>true = visible, false = masquée</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: PhotoGalerie }</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── RAPPELS ── -->
+<div id="panel-rappels" class="panel">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings/:id/rappels</span>
+      <span class="ep-desc">Liste des rappels</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Query params</p>
+      <table class="param-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>statut</td><td class="type">enum</td><td>PROGRAMME | ENVOYE | ECHEC</td></tr>
+        <tr><td>type</td><td class="type">enum</td><td>Type de rappel</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: Rappel[] }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/weddings/:id/rappels</span>
+      <span class="ep-desc">Créer un rappel personnalisé</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>destinataire</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Numéro WhatsApp</td></tr>
+        <tr><td>dateEnvoi</td><td class="type">datetime</td><td><span class="req">Requis</span></td><td>Quand envoyer</td></tr>
+        <tr><td>messagePersonna</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Message personnalisé</td></tr>
+        <tr><td>canal</td><td class="type">enum</td><td><span class="opt">Optionnel</span></td><td>WHATSAPP | SMS | EMAIL</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: Rappel }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/rappels/:id/retry</span>
+      <span class="ep-desc">Relancer un rappel échoué</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: { statut: "ENVOYE" | "ECHEC" } }</span></div>
+      <div class="resp-row"><span class="status s-4">400</span><span>Rappel non en statut ECHEC</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── TÂCHES ── -->
+<div id="panel-taches" class="panel">
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-get">GET</span>
+      <span class="ep-path">/api/weddings/:id/taches</span>
+      <span class="ep-desc">Liste des tâches</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <p class="section-label">Query params</p>
+      <table class="param-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>faite</td><td class="type">boolean</td><td>Filtrer par état</td></tr>
+        <tr><td>priorite</td><td class="type">int</td><td>1 haute · 2 normale · 3 basse</td></tr>
+        <tr><td>categorie</td><td class="type">string</td><td>Filtrer par catégorie</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: Tache[], meta: { faites, total } }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-post">POST</span>
+      <span class="ep-path">/api/weddings/:id/taches</span>
+      <span class="ep-desc">Créer une tâche</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Requis</th><th>Description</th></tr>
+        <tr><td>titre</td><td class="type">string</td><td><span class="req">Requis</span></td><td>Titre de la tâche</td></tr>
+        <tr><td>echeance</td><td class="type">datetime</td><td><span class="opt">Optionnel</span></td><td>Date limite</td></tr>
+        <tr><td>priorite</td><td class="type">int</td><td><span class="opt">Optionnel</span></td><td>1 | 2 | 3 (défaut: 2)</td></tr>
+        <tr><td>categorie</td><td class="type">string</td><td><span class="opt">Optionnel</span></td><td>Ex: "Administratif"</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">201</span><span>{ success, data: Tache }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-patch">PATCH</span>
+      <span class="ep-path">/api/weddings/:id/taches/:tacheId</span>
+      <span class="ep-desc">Modifier / cocher une tâche</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <table class="param-table">
+        <tr><th>Champ</th><th>Type</th><th>Description</th></tr>
+        <tr><td>faite</td><td class="type">boolean</td><td>Marquer comme faite/non faite</td></tr>
+        <tr><td>titre</td><td class="type">string</td><td>Nouveau titre</td></tr>
+        <tr><td>echeance</td><td class="type">datetime</td><td>Nouvelle échéance</td></tr>
+        <tr><td>priorite</td><td class="type">int</td><td>Nouvelle priorité</td></tr>
+      </table>
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success, data: Tache }</span></div>
+    </div>
+  </div>
+
+  <div class="endpoint">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method m-delete">DELETE</span>
+      <span class="ep-path">/api/weddings/:id/taches/:tacheId</span>
+      <span class="ep-desc">Supprimer une tâche</span>
+      <span class="badge-auth"><i class="ti ti-lock" aria-hidden="true"></i> Auth</span>
+    </div>
+    <div class="ep-body">
+      <div class="resp-row"><span class="status s-2">200</span><span>{ success: true }</span></div>
+    </div>
+  </div>
+
+</div>
+
+<button class="cta" onclick="sendPrompt('Génère les wireframes des écrans principaux de WeddMate')">Suivant : wireframes écrans ↗</button>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+function toggle(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+</script>

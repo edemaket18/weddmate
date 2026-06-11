@@ -1,0 +1,397 @@
+// Schéma Prisma — Plateforme de coordination mariage
+// Stack : PostgreSQL + Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// ENUMS
+
+enum Role {
+  COUPLE      
+  PRESTATAIRE  
+  PLANNER      
+  ADMIN        
+}
+
+enum WeddingStatus {
+  EN_PREPARATION
+  CONFIRME
+  TERMINE
+  ANNULE
+}
+
+enum PrestaireStatut {
+  CONTACTE      
+  EN_ATTENTE    
+  CONFIRME      
+  PAYE          
+  ANNULE        
+}
+
+enum PrestaireCategorie {
+  LIEU
+  TRAITEUR
+  PHOTOGRAPHE
+  VIDEASTE
+  DJ_MUSIQUE
+  ORCHESTRE
+  FLEURISTE
+  DECORATION
+  OFFICIANT
+  COIFFURE_MAQUILLAGE
+  TRANSPORT
+  GATEAU
+  ANIMATION
+  AUTRE
+}
+
+enum BudgetStatut {
+  PREVU      
+  ACOMPTE    
+  SOLDE      
+}
+
+enum InviteStatut {
+  EN_ATTENTE  
+  CONFIRME    
+  DECLINE     
+  LISTE_ATTENTE
+}
+
+enum RappelType {
+  ACOMPTE_DU
+  SOLDE_DU          
+  CONFIRMATION      
+  DOCUMENTS         
+  JOUR_J_MOINS_30
+  JOUR_J_MOINS_7
+  JOUR_J_MOINS_1
+  RSVP_INVITE_J7    
+  PERSONNALISE
+}
+
+enum RappelStatut {
+  PROGRAMME
+  ENVOYE
+  ECHEC
+}
+
+enum NotifCanal {
+  WHATSAPP
+  EMAIL
+  SMS
+}
+
+// UTILISATEUR
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  telephone    String?  @unique
+  motDePasse   String
+  nom          String
+  prenom       String
+  role         Role     @default(COUPLE)
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  weddingsCouple    WeddingCouple[]    
+  weddingsPlanner   Wedding[]          @relation("PlannerWeddings")
+  prestataire       Prestataire?       
+  notifications     Notification[]
+  sessionsActives   Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// MARIAGE
+
+model Wedding {
+  id            String        @id @default(cuid())
+  nomCeremonie  String        
+  slug          String        @unique  
+  dateJourJ     DateTime
+  heureCeremonie String?      
+  heureReception String?      
+  lieuCeremonie String?
+  lieuReception String?
+  statut        WeddingStatus @default(EN_PREPARATION)
+  budgetTotal   Float         @default(0)
+  devise        String        @default("FCFA")
+  nombreInvites Int           @default(0)
+  notes         String?
+
+  // Flags RSVP & galerie
+  rsvpOuvert      Boolean   @default(true)  
+  galerieOuverte  Boolean   @default(true)  
+  rsvpDateLimite  DateTime?                  
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  plannerId String?
+  planner   User?   @relation("PlannerWeddings", fields: [plannerId], references: [id])
+
+  // Relations
+  couples       WeddingCouple[]
+  prestataires  WeddingPrestataire[]
+  budgetItems   BudgetItem[]
+  invites       Invite[]
+  taches        Tache[]
+  rappels       Rappel[]
+  documents     Document[]
+  notifications Notification[]
+  photosGalerie PhotoGalerie[]
+
+  @@map("weddings")
+}
+
+model WeddingCouple {
+  id        String   @id @default(cuid())
+  weddingId String
+  userId    String
+  role      String   @default("MARIE") 
+  createdAt DateTime @default(now())
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([weddingId, userId])
+  @@map("wedding_couples")
+}
+
+// PRESTATAIRE
+
+model Prestataire {
+  id          String             @id @default(cuid())
+  userId      String?            @unique  
+  nomEntreprise String
+  nomContact  String
+  telephone   String
+  email       String?
+  whatsapp    String?
+  categorie   PrestaireCategorie
+  description String?
+  siteWeb     String?
+  ville       String?
+  noteGlobale Float?             @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  user              User?                @relation(fields: [userId], references: [id])
+  weddingsLies      WeddingPrestataire[]
+  evaluations       Evaluation[]
+
+  @@map("prestataires")
+}
+
+// Liaison prestataire <-> mariage avec toutes les infos du contrat
+model WeddingPrestataire {
+  id              String          @id @default(cuid())
+  weddingId       String
+  prestataireId   String
+  statut          PrestaireStatut @default(CONTACTE)
+  montantDevis    Float?
+  montantAcompte  Float?
+  dateAcompte     DateTime?
+  montantSolde    Float?
+  dateSolde       DateTime?
+  heureArrivee    DateTime?
+  heureDepart     DateTime?
+  lieuIntervention String?
+  notesContrat    String?
+  ficheConfirmee  Boolean         @default(false)  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  wedding     Wedding     @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  prestataire Prestataire @relation(fields: [prestataireId], references: [id])
+  rappels     Rappel[]
+
+  @@unique([weddingId, prestataireId])
+  @@map("wedding_prestataires")
+}
+
+// BUDGET
+
+model BudgetItem {
+  id          String       @id @default(cuid())
+  weddingId   String
+  categorie   PrestaireCategorie
+  libelle     String       
+  montantPrevu Float       @default(0)
+  montantPaye Float        @default(0)
+  statut      BudgetStatut @default(PREVU)
+  datePaiement DateTime?
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("budget_items")
+}
+
+// INVITÉS
+
+model Invite {
+  id              String       @id @default(cuid())
+  weddingId       String
+  nom             String
+  prenom          String
+  telephone       String?
+  email           String?
+  whatsapp        String?
+  statut          InviteStatut @default(EN_ATTENTE)
+  nombreAccompa   Int          @default(0)  
+  tableAssignee   String?      
+  regimeAliment   String?      
+  transport       Boolean      @default(false)  
+  hebergement     Boolean      @default(false)
+  cote            String?      
+  notes           String?
+
+  // Champs RSVP (remplis via le formulaire public)
+  messageAuxMaries  String?    
+  rsvpAt            DateTime?  
+  rsvpSource        String?    
+  rappelJ7Envoye    Boolean    @default(false)
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("invites")
+}
+
+// TÂCHES & CHECKLIST
+
+model Tache {
+  id          String    @id @default(cuid())
+  weddingId   String
+  titre       String
+  description String?
+  echeance    DateTime?
+  faite       Boolean   @default(false)
+  priorite    Int       @default(2)  
+  categorie   String?   
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("taches")
+}
+
+// RAPPELS AUTOMATIQUES (WhatsApp)
+
+model Rappel {
+  id                 String            @id @default(cuid())
+  weddingId          String
+  weddingPrestataireId String?         
+  type               RappelType
+  canal              NotifCanal        @default(WHATSAPP)
+  destinataire       String            
+  messagePersonna    String?           
+  dateEnvoi          DateTime         
+  statut             RappelStatut      @default(PROGRAMME)
+  erreurMessage      String?           
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  wedding            Wedding            @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingPrestataire WeddingPrestataire? @relation(fields: [weddingPrestataireId], references: [id])
+
+  @@map("rappels")
+}
+
+// DOCUMENTS (contrats, devis, photos...)
+
+model Document {
+  id        String   @id @default(cuid())
+  weddingId String
+  nom       String
+  type      String   
+  url       String   
+  taille    Int?     
+  createdAt DateTime @default(now())
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+// ÉVALUATIONS PRESTATAIRES (post-mariage)
+
+model Evaluation {
+  id            String   @id @default(cuid())
+  prestataireId String
+  weddingId     String
+  note          Int     
+  commentaire   String?
+  createdAt     DateTime @default(now())
+
+  prestataire Prestataire @relation(fields: [prestataireId], references: [id])
+
+  @@unique([prestataireId, weddingId])
+  @@map("evaluations")
+}
+
+// GALERIE PHOTO (accessible via QR Code après le mariage)
+
+model PhotoGalerie {
+  id          String   @id @default(cuid())
+  weddingId   String
+  url         String   
+  thumbnailUrl String? 
+  taille      Int?     
+  uploadePar  String?  
+  whatsappUpl String?  
+  validee     Boolean  @default(true)
+  caption     String? 
+  createdAt   DateTime @default(now())
+
+  wedding Wedding @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+
+  @@map("photos_galerie")
+}
+
+// NOTIFICATIONS IN-APP
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  weddingId String?
+  titre     String
+  message   String
+  lue       Boolean  @default(false)
+  lien      String?  
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wedding Wedding? @relation(fields: [weddingId], references: [id])
+
+  @@map("notifications")
+}
