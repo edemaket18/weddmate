@@ -1,10 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
-export const BUCKET_NAME = process.env.EXPO_PUBLIC_BUCKET_NAME!
-export const BUCKET_URL = process.env.EXPO_PUBLIC_BUCKET_URL!
+const requireExpoEnv = (key: string) => {
+  const value = process.env[key]
+  if (!value) {
+    throw new Error(`${key} est requis pour configurer Supabase`)
+  }
+  return value
+}
 
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
+export const BUCKET_NAME = requireExpoEnv('EXPO_PUBLIC_BUCKET_NAME')
+
+const SUPABASE_URL = requireExpoEnv('EXPO_PUBLIC_SUPABASE_URL')
+const SUPABASE_ANON_KEY = requireExpoEnv('EXPO_PUBLIC_SUPABASE_ANON_KEY')
 
 export const supabase = createClient(
   SUPABASE_URL,
@@ -26,7 +33,7 @@ export const uploadPhotoToSupabase = async (
 
   const arrayBuffer = await blob.arrayBuffer()
 
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from(BUCKET_NAME)
     .upload(fileName, arrayBuffer, {
       contentType: blob.type || 'image/jpeg',
@@ -35,7 +42,7 @@ export const uploadPhotoToSupabase = async (
 
   if (error) throw new Error(`Upload Supabase échoué : ${error.message}`)
 
-  const url = `${BUCKET_URL}/${fileName}`
+  const url = supabase.storage.from(BUCKET_NAME).getPublicUrl(fileName).data.publicUrl
   const thumbnailUrl = url 
 
   return { url, thumbnailUrl, taille }

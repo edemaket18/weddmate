@@ -4,7 +4,7 @@
 } from 'react-native'
 import { useState, useEffect, useCallback } from 'react'
 import { useWeddingStore } from '../../store/wedding.store'
-import { api } from '../../lib/api'
+import { API_BASE_URL, api } from '../../lib/api'
 
 const COLORS = {
   primary: '#1B3A5C', accent: '#C9A84C', white: '#FFFFFF',
@@ -76,7 +76,7 @@ export default function InvitesScreen() {
 
   const handleShareRsvp = async () => {
     if (!currentWedding) return
-    const url = `${process.env.EXPO_PUBLIC_API_URL}/rsvp/${currentWedding.slug}`
+    const url = `${API_BASE_URL}/rsvp/${currentWedding.slug}`
     try {
       await Share.share({
         message: `💍 Vous êtes invité(e) au ${currentWedding.nomCeremonie} !\n\nConfirmez votre présence ici :\n${url}`,

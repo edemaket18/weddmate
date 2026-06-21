@@ -74,7 +74,8 @@ export const useWeddingStore = create<WeddingState>((set, get) => ({
     } catch {}
   },
 
-  createWedding: async (weddingData) => {
+ /* 
+ createWedding: async (weddingData) => {
     const { data } = await api.post('/api/weddings', weddingData)
     const wedding = data.data.wedding
     set(state => ({
@@ -83,6 +84,32 @@ export const useWeddingStore = create<WeddingState>((set, get) => ({
     }))
     return wedding
   },
+ */
+
+  createWedding: async (weddingData) => {
+  try {
+    const { data } = await api.post('/api/weddings', weddingData)
+
+    const wedding = data.data.wedding
+
+    set(state => ({
+      weddings: [wedding, ...state.weddings],
+      currentWedding: wedding,
+    }))
+
+    return wedding
+
+  } catch (error: any) {
+
+    console.log(
+      "ERREUR CREATE WEDDING:",
+      error.response?.data
+    )
+
+    throw error
+  }
+},
+
 
   setCurrentWedding: (wedding) => {
     set({ currentWedding: wedding })

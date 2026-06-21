@@ -1,4 +1,4 @@
-import {
+ import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
   Image, Modal, TextInput, Alert, ActivityIndicator,
   RefreshControl, Dimensions, Share,
@@ -46,9 +46,12 @@ export default function GalerieScreen() {
     if (!currentWedding) return
     setLoading(true)
     try {
-      const { data } = await api.get(`/gallery/${currentWedding.slug}`)
-      setPhotos(data.data.photos || [])
-    } catch {
+      // FIX CRITIQUE : utiliser /data pour recevoir du JSON
+      // /gallery/:slug (sans /data) renvoie la page HTML pour les invités
+      const { data } = await api.get(`/gallery/${currentWedding.slug}/data`)
+      setPhotos(data?.data?.photos || [])
+    } catch (e) {
+      console.log('[fetchPhotos]', e)
       setPhotos([])
     }
     setLoading(false)
@@ -83,69 +86,49 @@ export default function GalerieScreen() {
     } catch {}
   }
 
-  //Sélectionner une photo depuis la galerie 
   const handlePickImage = async () => {
     if (!currentWedding?.galerieOuverte) {
       Alert.alert('Galerie fermée', 'Ouvrez la galerie avant d\'uploader des photos.')
       return
     }
-
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (!permission.granted) {
       Alert.alert('Permission requise', 'Autorisez l\'accès à vos photos pour uploader.')
       return
     }
-
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.8,
     })
-
     if (result.canceled || !result.assets[0]) return
-
-    // Stocker l'URI et ouvrir le modal de légende
     setPendingUri(result.assets[0].uri)
     setCaption('')
     setShowCaption(true)
   }
 
-  //Upload vers Supabase + enregistrement en base 
   const handleUpload = async () => {
     if (!currentWedding || !pendingUri) return
     setShowCaption(false)
     setUploading(true)
     setUploadProgress('Compression de la photo...')
-
     try {
-      // 1. Upload vers Supabase Storage
       setUploadProgress('Upload vers Supabase...')
       const { url, thumbnailUrl, taille } = await uploadPhotoToSupabase(
-        pendingUri,
-        currentWedding.slug,
-        'Marié(e)',
+        pendingUri, currentWedding.slug, 'Marié(e)',
       )
-
-      // 2. Enregistrer en base via l'API backend
       setUploadProgress('Enregistrement...')
       await api.post(`/gallery/${currentWedding.slug}/photos`, {
-        url,
-        thumbnailUrl,
-        uploadePar: 'Marié(e)',
-        caption: caption.trim() || null,
-        taille,
+        url, thumbnailUrl, uploadePar: 'Marié(e)',
+        caption: caption.trim() || null, taille,
       })
-
       setPendingUri(null)
       setCaption('')
       await fetchPhotos()
-      Alert.alert('✅ Photo uploadée', 'Votre photo a été ajoutée à la galerie Supabase.')
+      Alert.alert('✅ Photo uploadée', 'Votre photo a été ajoutée à la galerie.')
     } catch (e: any) {
       console.error('[upload]', e)
-      Alert.alert(
-        'Erreur upload',
-        e?.message || e?.response?.data?.error || 'Erreur lors de l\'upload vers Supabase.',
-      )
+      Alert.alert('Erreur upload', e?.message || e?.response?.data?.error || 'Erreur lors de l\'upload.')
     } finally {
       setUploading(false)
       setUploadProgress('')
@@ -161,9 +144,7 @@ export default function GalerieScreen() {
   const handleModerer = async (photo: Photo) => {
     if (!currentWedding) return
     try {
-      await api.patch(`/api/weddings/${currentWedding.id}/galerie/${photo.id}`, {
-        validee: !photo.validee,
-      })
+      await api.patch(`/api/weddings/${currentWedding.id}/galerie/${photo.id}`, { validee: !photo.validee })
       setSelectedPhoto(prev => prev ? { ...prev, validee: !prev.validee } : null)
       await fetchPhotos()
     } catch {}
@@ -173,17 +154,15 @@ export default function GalerieScreen() {
     if (!currentWedding) return
     Alert.alert('Supprimer', 'Supprimer cette photo définitivement ?', [
       { text: 'Annuler', style: 'cancel' },
-      {
-        text: 'Supprimer', style: 'destructive', onPress: async () => {
-          try {
-            await api.delete(`/api/weddings/${currentWedding.id}/galerie/${photo.id}`)
-            setSelectedPhoto(null)
-            await fetchPhotos()
-          } catch {
-            Alert.alert('Erreur', 'Impossible de supprimer la photo.')
-          }
+      { text: 'Supprimer', style: 'destructive', onPress: async () => {
+        try {
+          await api.delete(`/api/weddings/${currentWedding.id}/galerie/${photo.id}`)
+          setSelectedPhoto(null)
+          await fetchPhotos()
+        } catch {
+          Alert.alert('Erreur', 'Impossible de supprimer la photo.')
         }
-      },
+      }},
     ])
   }
 
@@ -195,8 +174,6 @@ export default function GalerieScreen() {
 
   return (
     <View style={styles.container}>
-
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>📸 Galerie</Text>
         <TouchableOpacity
@@ -209,27 +186,21 @@ export default function GalerieScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Stats bar */}
       <View style={styles.statsBar}>
         <View style={styles.statItem}>
           <Text style={styles.statVal}>{photos.length}</Text>
           <Text style={styles.statLbl}>Photos</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statVal, { color: COLORS.success }]}>
-            {photos.filter(p => p.validee).length}
-          </Text>
+          <Text style={[styles.statVal, { color: COLORS.success }]}>{photos.filter(p => p.validee).length}</Text>
           <Text style={styles.statLbl}>Visibles</Text>
         </View>
         <View style={styles.statItem}>
-          <Text style={[styles.statVal, { color: COLORS.muted }]}>
-            {photos.filter(p => !p.validee).length}
-          </Text>
+          <Text style={[styles.statVal, { color: COLORS.muted }]}>{photos.filter(p => !p.validee).length}</Text>
           <Text style={styles.statLbl}>Masquées</Text>
         </View>
       </View>
 
-      {/* Actions rapides */}
       <View style={styles.actionsRow}>
         <TouchableOpacity
           style={[styles.actionBtn, styles.actionBtnQR, !currentWedding.galerieOuverte && styles.actionBtnDisabled]}
@@ -238,7 +209,6 @@ export default function GalerieScreen() {
           <Text style={styles.actionBtnIcon}>⬛</Text>
           <Text style={styles.actionBtnTextQR}>QR Code</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={[styles.actionBtn, !currentWedding.galerieOuverte && styles.actionBtnDisabled]}
           onPress={() => currentWedding.galerieOuverte && handleShareLink()}
@@ -246,7 +216,6 @@ export default function GalerieScreen() {
           <Text style={styles.actionBtnIcon}>📤</Text>
           <Text style={styles.actionBtnText}>Partager</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={[styles.actionBtn, uploading && styles.actionBtnDisabled]}
           onPress={handlePickImage}
@@ -254,15 +223,11 @@ export default function GalerieScreen() {
         >
           {uploading
             ? <ActivityIndicator color={COLORS.primary} size="small" />
-            : <>
-                <Text style={styles.actionBtnIcon}>➕</Text>
-                <Text style={styles.actionBtnText}>Ma photo</Text>
-              </>
+            : <><Text style={styles.actionBtnIcon}>➕</Text><Text style={styles.actionBtnText}>Ma photo</Text></>
           }
         </TouchableOpacity>
       </View>
 
-      {/* Barre de progression upload */}
       {uploading && uploadProgress !== '' && (
         <View style={styles.uploadBar}>
           <ActivityIndicator color={COLORS.accent} size="small" />
@@ -270,12 +235,9 @@ export default function GalerieScreen() {
         </View>
       )}
 
-      {/* Grille photos */}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.accent]} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.accent]} />}
       >
         {loading ? (
           <ActivityIndicator color={COLORS.primary} style={{ marginTop: 40 }} />
@@ -283,9 +245,7 @@ export default function GalerieScreen() {
           <View style={styles.empty}>
             <Text style={styles.emptyEmoji}>📸</Text>
             <Text style={styles.emptyTitle}>Galerie fermée</Text>
-            <Text style={styles.emptyText}>
-              Ouvrez la galerie pour que vos invités puissent scanner le QR Code et partager leurs photos.
-            </Text>
+            <Text style={styles.emptyText}>Ouvrez la galerie pour que vos invités puissent scanner le QR Code et partager leurs photos.</Text>
             <TouchableOpacity style={styles.emptyBtn} onPress={handleToggleGalerie}>
               <Text style={styles.emptyBtnText}>🎉 Ouvrir la galerie</Text>
             </TouchableOpacity>
@@ -294,9 +254,7 @@ export default function GalerieScreen() {
           <View style={styles.empty}>
             <Text style={styles.emptyEmoji}>🖼️</Text>
             <Text style={styles.emptyTitle}>Aucune photo</Text>
-            <Text style={styles.emptyText}>
-              Montrez le QR Code à vos invités pour qu'ils partagent leurs photos.
-            </Text>
+            <Text style={styles.emptyText}>Montrez le QR Code à vos invités pour qu'ils partagent leurs photos.</Text>
             <TouchableOpacity
               style={[styles.emptyBtn, !currentWedding.galerieOuverte && { opacity: 0.5 }]}
               onPress={() => currentWedding.galerieOuverte && setShowQR(true)}
@@ -312,20 +270,12 @@ export default function GalerieScreen() {
                 style={[styles.photoCell, !photo.validee && styles.photoCellHidden]}
                 onPress={() => setSelectedPhoto(photo)}
               >
-                <Image
-                  source={{ uri: photo.thumbnailUrl || photo.url }}
-                  style={styles.photoThumb}
-                  resizeMode="cover"
-                />
+                <Image source={{ uri: photo.thumbnailUrl || photo.url }} style={styles.photoThumb} resizeMode="cover" />
                 {!photo.validee && (
-                  <View style={styles.hiddenOverlay}>
-                    <Text style={styles.hiddenText}>Masquée</Text>
-                  </View>
+                  <View style={styles.hiddenOverlay}><Text style={styles.hiddenText}>Masquée</Text></View>
                 )}
                 {photo.uploadePar && (
-                  <View style={styles.uploaderTag}>
-                    <Text style={styles.uploaderText}>{photo.uploadePar[0]}</Text>
-                  </View>
+                  <View style={styles.uploaderTag}><Text style={styles.uploaderText}>{photo.uploadePar[0]}</Text></View>
                 )}
               </TouchableOpacity>
             ))}
@@ -334,53 +284,29 @@ export default function GalerieScreen() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* MODAL QR CODE PLEIN ÉCRAN */}
       <Modal visible={showQR} animationType="fade" statusBarTranslucent>
         <View style={styles.qrModal}>
           <TouchableOpacity style={styles.qrClose} onPress={() => setShowQR(false)}>
             <Text style={styles.qrCloseText}>✕</Text>
           </TouchableOpacity>
-
           <View style={styles.qrContent}>
             <Text style={styles.qrTitle}>💍 {currentWedding.nomCeremonie}</Text>
-            <Text style={styles.qrSubtitle}>
-              Scannez ce QR Code pour accéder à la galerie photo et partager vos souvenirs
-            </Text>
-
+            <Text style={styles.qrSubtitle}>Scannez ce QR Code pour accéder à la galerie photo et partager vos souvenirs</Text>
             <View style={styles.qrCard}>
-              <QRCode
-                value={galerieUrl}
-                size={220}
-                color={COLORS.primary}
-                backgroundColor={COLORS.white}
-                logoSize={36}
-                logoBackgroundColor={COLORS.white}
-                logoBorderRadius={8}
-              />
+              <QRCode value={galerieUrl} size={220} color={COLORS.primary} backgroundColor={COLORS.white} />
             </View>
-
             <View style={styles.qrUrlBox}>
               <Text style={styles.qrUrlLabel}>Lien direct :</Text>
-              <Text style={styles.qrUrlText} numberOfLines={1} ellipsizeMode="middle">
-                {galerieUrl}
-              </Text>
+              <Text style={styles.qrUrlText} numberOfLines={1} ellipsizeMode="middle">{galerieUrl}</Text>
             </View>
-
             <View style={styles.qrSteps}>
-              {[
-                'Ouvrez l\'appareil photo de votre téléphone',
-                'Pointez vers ce QR Code',
-                'Accédez à la galerie et partagez vos photos !',
-              ].map((step, i) => (
+              {['Ouvrez l\'appareil photo de votre téléphone', 'Pointez vers ce QR Code', 'Accédez à la galerie et partagez vos photos !'].map((step, i) => (
                 <View key={i} style={styles.qrStep}>
-                  <View style={styles.qrStepNum}>
-                    <Text style={styles.qrStepNumText}>{i + 1}</Text>
-                  </View>
+                  <View style={styles.qrStepNum}><Text style={styles.qrStepNumText}>{i + 1}</Text></View>
                   <Text style={styles.qrStepText}>{step}</Text>
                 </View>
               ))}
             </View>
-
             <TouchableOpacity style={styles.qrShareBtn} onPress={handleShareLink}>
               <Text style={styles.qrShareBtnText}>📤 Partager le lien par WhatsApp</Text>
             </TouchableOpacity>
@@ -388,7 +314,6 @@ export default function GalerieScreen() {
         </View>
       </Modal>
 
-      {/* Modal photo détail */}
       <Modal visible={!!selectedPhoto} transparent animationType="fade">
         <View style={styles.photoModal}>
           <TouchableOpacity style={styles.photoModalClose} onPress={() => setSelectedPhoto(null)}>
@@ -396,26 +321,16 @@ export default function GalerieScreen() {
           </TouchableOpacity>
           {selectedPhoto && (
             <>
-              <Image
-                source={{ uri: selectedPhoto.url }}
-                style={styles.photoFull}
-                resizeMode="contain"
-              />
+              <Image source={{ uri: selectedPhoto.url }} style={styles.photoFull} resizeMode="contain" />
               <View style={styles.photoActions}>
-                {selectedPhoto.caption && (
-                  <Text style={styles.photoCaption}>{selectedPhoto.caption}</Text>
-                )}
-                {selectedPhoto.uploadePar && (
-                  <Text style={styles.photoUploader}>Par {selectedPhoto.uploadePar}</Text>
-                )}
+                {selectedPhoto.caption && <Text style={styles.photoCaption}>{selectedPhoto.caption}</Text>}
+                {selectedPhoto.uploadePar && <Text style={styles.photoUploader}>Par {selectedPhoto.uploadePar}</Text>}
                 <View style={styles.photoButtons}>
                   <TouchableOpacity
                     style={[styles.photoBtn, { backgroundColor: selectedPhoto.validee ? COLORS.muted : COLORS.success }]}
                     onPress={() => handleModerer(selectedPhoto)}
                   >
-                    <Text style={styles.photoBtnText}>
-                      {selectedPhoto.validee ? '🙈 Masquer' : '👁️ Afficher'}
-                    </Text>
+                    <Text style={styles.photoBtnText}>{selectedPhoto.validee ? '🙈 Masquer' : '👁️ Afficher'}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.photoBtn, { backgroundColor: COLORS.danger }]}
@@ -430,18 +345,11 @@ export default function GalerieScreen() {
         </View>
       </Modal>
 
-      {/* Modal caption + confirmation upload */}
       <Modal visible={showCaption} transparent animationType="slide">
         <View style={styles.captionModal}>
           <View style={styles.captionCard}>
             <Text style={styles.captionTitle}>📸 Ajouter une légende</Text>
-            {pendingUri && (
-              <Image
-                source={{ uri: pendingUri }}
-                style={styles.previewImage}
-                resizeMode="cover"
-              />
-            )}
+            {pendingUri && <Image source={{ uri: pendingUri }} style={styles.previewImage} resizeMode="cover" />}
             <TextInput
               style={styles.captionInput}
               placeholder="Ex: Belle cérémonie ! (optionnel)"
@@ -456,7 +364,7 @@ export default function GalerieScreen() {
                 <Text style={styles.captionCancelText}>Annuler</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.captionSave} onPress={handleUpload}>
-                <Text style={styles.captionSaveText}>Uploader sur Supabase</Text>
+                <Text style={styles.captionSaveText}>Uploader</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -470,18 +378,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   noWedding: { color: COLORS.muted, fontSize: 16 },
-
   header: { backgroundColor: COLORS.primary, paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   headerTitle: { fontSize: 20, fontWeight: '700', color: COLORS.white },
   toggleBtn: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 20, paddingVertical: 6, paddingHorizontal: 14 },
   toggleBtnActive: { backgroundColor: 'rgba(56,161,105,0.3)' },
   toggleBtnText: { color: COLORS.white, fontSize: 13, fontWeight: '600' },
-
   statsBar: { backgroundColor: COLORS.white, flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: COLORS.border },
   statItem: { flex: 1, alignItems: 'center' },
   statVal: { fontSize: 20, fontWeight: '800', color: COLORS.primary },
   statLbl: { fontSize: 10, color: COLORS.muted, marginTop: 2 },
-
   actionsRow: { flexDirection: 'row', gap: 10, padding: 14 },
   actionBtn: { flex: 1, backgroundColor: COLORS.white, borderRadius: 12, paddingVertical: 12, alignItems: 'center', borderWidth: 0.5, borderColor: COLORS.border },
   actionBtnQR: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
@@ -489,17 +394,14 @@ const styles = StyleSheet.create({
   actionBtnIcon: { fontSize: 18, marginBottom: 4 },
   actionBtnText: { fontSize: 11, color: COLORS.text, fontWeight: '500' },
   actionBtnTextQR: { fontSize: 11, color: COLORS.white, fontWeight: '600' },
-
   uploadBar: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: COLORS.primary + '15', paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: COLORS.border },
   uploadBarText: { fontSize: 13, color: COLORS.primary, fontWeight: '500' },
-
   empty: { alignItems: 'center', paddingTop: 60, paddingHorizontal: 32 },
   emptyEmoji: { fontSize: 52, marginBottom: 12 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: COLORS.text, marginBottom: 8 },
   emptyText: { fontSize: 14, color: COLORS.muted, textAlign: 'center', lineHeight: 22, marginBottom: 24 },
   emptyBtn: { backgroundColor: COLORS.primary, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 24 },
   emptyBtnText: { color: COLORS.white, fontWeight: '700' },
-
   grid: { flexDirection: 'row', flexWrap: 'wrap', padding: 16, gap: 8 },
   photoCell: { width: PHOTO_SIZE, height: PHOTO_SIZE, borderRadius: 10, overflow: 'hidden' },
   photoCellHidden: { opacity: 0.5 },
@@ -508,7 +410,6 @@ const styles = StyleSheet.create({
   hiddenText: { color: COLORS.white, fontSize: 11, fontWeight: '600' },
   uploaderTag: { position: 'absolute', bottom: 4, right: 4, width: 20, height: 20, borderRadius: 10, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
   uploaderText: { color: COLORS.white, fontSize: 10, fontWeight: '700' },
-
   qrModal: { flex: 1, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center', padding: 24 },
   qrClose: { position: 'absolute', top: 56, right: 20, width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center' },
   qrCloseText: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
@@ -526,7 +427,6 @@ const styles = StyleSheet.create({
   qrStepText: { fontSize: 13, color: 'rgba(255,255,255,0.85)', flex: 1, lineHeight: 18 },
   qrShareBtn: { backgroundColor: COLORS.accent, borderRadius: 14, paddingVertical: 14, paddingHorizontal: 28, width: '100%', alignItems: 'center' },
   qrShareBtnText: { color: COLORS.primary, fontSize: 15, fontWeight: '700' },
-
   photoModal: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center' },
   photoModalClose: { position: 'absolute', top: 56, right: 20, zIndex: 10, padding: 8 },
   photoModalCloseText: { color: COLORS.white, fontSize: 24 },
@@ -537,7 +437,6 @@ const styles = StyleSheet.create({
   photoButtons: { flexDirection: 'row', gap: 12, justifyContent: 'center' },
   photoBtn: { borderRadius: 10, paddingVertical: 10, paddingHorizontal: 20 },
   photoBtnText: { color: COLORS.white, fontWeight: '700', fontSize: 14 },
-
   captionModal: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
   captionCard: { backgroundColor: COLORS.white, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
   captionTitle: { fontSize: 17, fontWeight: '700', color: COLORS.text, marginBottom: 14, textAlign: 'center' },
@@ -549,4 +448,3 @@ const styles = StyleSheet.create({
   captionSave: { flex: 2, padding: 14, borderRadius: 12, backgroundColor: COLORS.primary, alignItems: 'center' },
   captionSaveText: { color: COLORS.white, fontWeight: '700' },
 })
-

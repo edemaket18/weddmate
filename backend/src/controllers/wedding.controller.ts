@@ -35,6 +35,13 @@ const generateQRCode = async (url: string): Promise<string> => {
   })
 }
 
+const resolvePublicBaseUrl = () => {
+  const baseUrl = process.env.APP_BASE_URL
+  if (baseUrl) return baseUrl.replace(/\/$/, '')
+  if (process.env.NODE_ENV !== 'production') return 'http://localhost:3001'
+  throw new Error('Variable d\'environnement manquante: APP_BASE_URL')
+}
+
 
 
 // Checklist par défaut créée à chaque nouveau mariage
@@ -71,7 +78,7 @@ export const createWedding = async (req: AuthRequest, res: Response) => {
     const slug = await generateSlug(nomCeremonie)
 
     // Générer l'URL publique du RSVP et le QR code galerie
-    const baseUrl = process.env.APP_BASE_URL || 'http://localhost:3001'
+    const baseUrl = resolvePublicBaseUrl()
     const rsvpUrl = `${baseUrl}/rsvp/${slug}`
     const galerieUrl = `${baseUrl}/gallery/${slug}`
     const qrCodeDataUrl = await generateQRCode(galerieUrl)
@@ -267,6 +274,13 @@ export const updateWedding = async (req: AuthRequest, res: Response) => {
 export const getWeddingStats = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
+
+    const couple = await prisma.weddingCouple.findFirst({
+      where: { weddingId: id, userId: req.user!.id },
+    })
+    if (!couple) {
+      return res.status(403).json({ success: false, error: 'Accès refusé' })
+    }
 
     const wedding = await prisma.wedding.findUnique({ where: { id } })
     if (!wedding) {

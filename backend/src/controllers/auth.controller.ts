@@ -13,8 +13,16 @@ import { prisma } from '../lib/prisma'
 //const prisma = new PrismaClient()
 
 
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error('Variable d\'environnement manquante: JWT_SECRET')
+  }
+  return secret
+}
+
 const signToken = (payload: { id: string; email: string; role: string }) => {
-  return jwt.sign(payload, process.env.JWT_SECRET as string, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   } as jwt.SignOptions)
 }

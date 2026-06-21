@@ -1,4 +1,4 @@
- import {
+import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform,
   ScrollView, ActivityIndicator, Alert,
@@ -88,7 +88,6 @@ export default function CreateWeddingScreen() {
     >
       <StatusBar style="light" />
 
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backText}>← Retour</Text>
@@ -105,34 +104,35 @@ export default function CreateWeddingScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>💍 Informations générales</Text>
 
-          {/* Nom cérémonie */}
+          {/* FIX: value={form.nomCeremonie} sans ?? — pas besoin */}
           <View style={styles.field}>
             <Text style={styles.label}>Nom de la cérémonie *</Text>
             <TextInput
               style={[styles.input, errors.nomCeremonie && styles.inputError]}
               placeholder="Ex: Mariage Koffi & Ama"
               placeholderTextColor={COLORS.muted}
-              value={form.nomCeremonie ??''}
+              value={form.nomCeremonie}
               onChangeText={v => update('nomCeremonie', v)}
+              autoCapitalize="words"
+              autoCorrect={false}
             />
             {errors.nomCeremonie ? <Text style={styles.errorText}>{errors.nomCeremonie}</Text> : null}
           </View>
 
-          {/* Date */}
           <View style={styles.field}>
             <Text style={styles.label}>Date du mariage * (JJ/MM/AAAA)</Text>
             <TextInput
               style={[styles.input, errors.dateJourJ && styles.inputError]}
               placeholder="20/12/2026"
               placeholderTextColor={COLORS.muted}
-              value={form.dateJourJ ??''}
+              value={form.dateJourJ}
               onChangeText={v => update('dateJourJ', v)}
               keyboardType="default"
+              autoCorrect={false}
             />
             {errors.dateJourJ ? <Text style={styles.errorText}>{errors.dateJourJ}</Text> : null}
           </View>
 
-          {/* Heures */}
           <View style={styles.row}>
             <View style={{ flex: 1 }}>
               <Text style={styles.label}>Heure cérémonie</Text>
@@ -142,6 +142,7 @@ export default function CreateWeddingScreen() {
                 placeholderTextColor={COLORS.muted}
                 value={form.heureCeremonie}
                 onChangeText={v => update('heureCeremonie', v)}
+                autoCorrect={false}
               />
             </View>
             <View style={{ width: 12 }} />
@@ -153,6 +154,7 @@ export default function CreateWeddingScreen() {
                 placeholderTextColor={COLORS.muted}
                 value={form.heureReception}
                 onChangeText={v => update('heureReception', v)}
+                autoCorrect={false}
               />
             </View>
           </View>
@@ -169,6 +171,7 @@ export default function CreateWeddingScreen() {
               placeholderTextColor={COLORS.muted}
               value={form.lieuCeremonie}
               onChangeText={v => update('lieuCeremonie', v)}
+              autoCorrect={false}
             />
           </View>
 
@@ -180,6 +183,7 @@ export default function CreateWeddingScreen() {
               placeholderTextColor={COLORS.muted}
               value={form.lieuReception}
               onChangeText={v => update('lieuReception', v)}
+              autoCorrect={false}
             />
           </View>
         </View>
@@ -209,6 +213,7 @@ export default function CreateWeddingScreen() {
                 value={form.devise}
                 onChangeText={v => update('devise', v)}
                 autoCapitalize="characters"
+                autoCorrect={false}
               />
             </View>
           </View>
@@ -236,20 +241,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray },
   header: {
     backgroundColor: COLORS.primary,
-    paddingTop: 56,
-    paddingBottom: 16,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingTop: 56, paddingBottom: 16, paddingHorizontal: 16,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
   backBtn: { padding: 8 },
   backText: { color: 'rgba(255,255,255,0.8)', fontSize: 14 },
   headerTitle: { fontSize: 18, fontWeight: '700', color: COLORS.white },
   scroll: { padding: 16 },
   card: {
-    backgroundColor: COLORS.white, borderRadius: 16,
-    padding: 20, marginBottom: 16,
+    backgroundColor: COLORS.white, borderRadius: 16, padding: 20, marginBottom: 16,
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
@@ -265,9 +265,8 @@ const styles = StyleSheet.create({
   inputError: { borderColor: COLORS.error },
   errorText: { fontSize: 12, color: COLORS.error, marginTop: 4 },
   submitBtn: {
-    backgroundColor: COLORS.primary, borderRadius: 14,
-    paddingVertical: 16, alignItems: 'center',
-    marginTop: 4,
+    backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16,
+    alignItems: 'center', marginTop: 4,
     shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
   },

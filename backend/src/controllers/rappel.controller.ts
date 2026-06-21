@@ -72,9 +72,9 @@ export const createRappel = async (req: AuthRequest, res: Response) => {
 
 export const retryRappel = async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.params
+    const { rappelId } = req.params
     const rappel = await prisma.rappel.findUnique({
-      where: { id },
+      where: { id: rappelId },
       include: { wedding: true },
     })
 
@@ -103,13 +103,13 @@ export const retryRappel = async (req: AuthRequest, res: Response) => {
       })
 
       const updated = await prisma.rappel.update({
-        where: { id },
+        where: { id: rappelId },
         data: { statut: 'ENVOYE', erreurMessage: null },
       })
       return res.status(200).json({ success: true, data: updated })
     } catch (sendError: any) {
       await prisma.rappel.update({
-        where: { id },
+        where: { id: rappelId },
         data: { erreurMessage: sendError.message?.slice(0, 255) },
       })
       return res.status(500).json({ success: false, error: 'Echec de l\'envoi WhatsApp' })

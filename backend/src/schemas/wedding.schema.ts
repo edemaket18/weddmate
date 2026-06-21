@@ -18,7 +18,8 @@ export const createWeddingSchema = z.object({
   budgetTotal: z
     .number()
     .min(0, 'Le budget ne peut pas être négatif')
-    .optional(),
+    .optional()
+    .nullable(),
 
   devise: z.string().default('FCFA'),
   notes: z.string().optional(),

@@ -1,4 +1,4 @@
- import { Tabs, router } from 'expo-router'
+import { Tabs } from 'expo-router'
 import { useEffect } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { useAuthStore } from '../../store/auth.store'
@@ -18,17 +18,13 @@ function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focu
   )
 }
 
+
 export default function AppLayout() {
-  const { isAuthenticated } = useAuthStore()
   const { fetchWeddings } = useWeddingStore()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/(auth)/login')
-      return
-    }
     fetchWeddings()
-  }, [isAuthenticated])
+  }, [])
 
   return (
     <Tabs
@@ -40,44 +36,29 @@ export default function AppLayout() {
     >
       <Tabs.Screen
         name="dashboard"
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" label="Accueil" focused={focused} />,
-        }}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" label="Accueil" focused={focused} /> }}
       />
       <Tabs.Screen
         name="prestataires"
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🤝" label="Presta" focused={focused} />,
-        }}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🤝" label="Presta" focused={focused} /> }}
       />
       <Tabs.Screen
         name="budget"
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="💰" label="Budget" focused={focused} />,
-        }}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="💰" label="Budget" focused={focused} /> }}
       />
       <Tabs.Screen
         name="invites"
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="👥" label="Invités" focused={focused} />,
-        }}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="👥" label="Invités" focused={focused} /> }}
       />
       <Tabs.Screen
         name="galerie"
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📸" label="Galerie" focused={focused} />,
-        }}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📸" label="Galerie" focused={focused} /> }}
       />
       <Tabs.Screen
         name="taches"
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="✅" label="Tâches" focused={focused} />,
-        }}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="✅" label="Tâches" focused={focused} /> }}
       />
-      <Tabs.Screen 
-        name="create-wedding" 
-        options={{href:null}} 
-      />
+      <Tabs.Screen name="create-wedding" options={{ href: null }} />
     </Tabs>
   )
 }
@@ -97,12 +78,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   tabIcon: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    minWidth: 56,
+    alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: 12, minWidth: 56,
   },
   tabIconActive: { backgroundColor: 'rgba(27,58,92,0.08)' },
   tabEmoji: { fontSize: 20, marginBottom: 2 },

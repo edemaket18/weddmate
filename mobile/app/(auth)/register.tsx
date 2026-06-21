@@ -1,4 +1,4 @@
-import {
+ import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform,
   ScrollView, ActivityIndicator, Alert,
@@ -12,6 +12,35 @@ const COLORS = {
   primary: '#1B3A5C', accent: '#C9A84C', white: '#FFFFFF',
   gray: '#F4F6F8', border: '#D0D9E4', text: '#1E2D3D',
   muted: '#6B7C93', error: '#E53E3E',
+}
+
+interface FieldProps {
+  label: string; field: string; placeholder: string
+  keyboard?: any; secure?: boolean; showPassword?: boolean
+  value: string; error?: string; onChangeText: (v: string) => void
+}
+
+function Field({
+  label, placeholder, keyboard = 'default', secure = false,
+  showPassword = false, value, error, onChangeText,
+}: FieldProps) {
+  return (
+    <View style={styles.fieldGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        style={[styles.input, error ? styles.inputError : null]}
+        placeholder={placeholder}
+        placeholderTextColor={COLORS.muted}
+        value={value}
+        onChangeText={onChangeText}
+        keyboardType={keyboard}
+        secureTextEntry={secure && !showPassword}
+        autoCapitalize={keyboard === 'email-address' || secure ? 'none' : 'words'}
+        autoCorrect={false}
+      />
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+    </View>
+  )
 }
 
 export default function RegisterScreen() {
@@ -53,7 +82,12 @@ export default function RegisterScreen() {
         telephone: form.telephone.trim() || undefined,
         role: 'COUPLE',
       })
-      router.replace('/(app)/dashboard')
+      // FIX CRITIQUE : on ne fait PLUS router.replace() ici.
+      // Le root layout (app/_layout.tsx) surveille déjà isAuthenticated
+      // et redirige automatiquement vers /(app)/dashboard dès que
+      // register() passe isAuthenticated à true.
+      // Faire la navigation ICI EN PLUS créait une double navigation
+      // qui s'annulait et bloquait l'app sur l'écran register.
     } catch (err: any) {
       const msg = err?.response?.data?.error || 'Erreur lors de la création du compte.'
       Alert.alert('Inscription échouée', msg)
@@ -61,26 +95,6 @@ export default function RegisterScreen() {
       setLoading(false)
     }
   }
-
-  const Field = ({
-    label, field, placeholder, keyboard = 'default', secure = false,
-  }: { label: string; field: string; placeholder: string; keyboard?: any; secure?: boolean }) => (
-    <View style={styles.fieldGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={[styles.input, errors[field] ? styles.inputError : null]}
-        placeholder={placeholder}
-        placeholderTextColor={COLORS.muted}
-        value={form[field as keyof typeof form]}
-        onChangeText={(v) => update(field, v)}
-        keyboardType={keyboard}
-        secureTextEntry={secure && !showPassword}
-        autoCapitalize={keyboard === 'email-address' || secure ? 'none' : 'words'}
-        autoCorrect={false}
-      />
-      {errors[field] ? <Text style={styles.errorText}>{errors[field]}</Text> : null}
-    </View>
-  )
 
   return (
     <KeyboardAvoidingView
@@ -93,7 +107,6 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
             <Text style={styles.backText}>← Retour</Text>
@@ -107,16 +120,16 @@ export default function RegisterScreen() {
 
           <View style={styles.row}>
             <View style={{ flex: 1 }}>
-              <Field label="Prénom" field="prenom" placeholder="Ama" />
+              <Field label="Prénom" field="prenom" placeholder="Ama" value={form.prenom} error={errors.prenom} onChangeText={v => update('prenom', v)} />
             </View>
             <View style={{ width: 12 }} />
             <View style={{ flex: 1 }}>
-              <Field label="Nom" field="nom" placeholder="Koffi" />
+              <Field label="Nom" field="nom" placeholder="Koffi" value={form.nom} error={errors.nom} onChangeText={v => update('nom', v)} />
             </View>
           </View>
 
-          <Field label="Email" field="email" placeholder="koffi@exemple.com" keyboard="email-address" />
-          <Field label="Téléphone / WhatsApp" field="telephone" placeholder="+228 90 00 00 00" keyboard="phone-pad" />
+          <Field label="Email" field="email" placeholder="koffi@exemple.com" keyboard="email-address" value={form.email} error={errors.email} onChangeText={v => update('email', v)} />
+          <Field label="Téléphone / WhatsApp" field="telephone" placeholder="+228 90 00 00 00" keyboard="phone-pad" value={form.telephone} error={errors.telephone} onChangeText={v => update('telephone', v)} />
 
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Mot de passe</Text>
@@ -126,9 +139,10 @@ export default function RegisterScreen() {
                 placeholder="Min 8 caractères"
                 placeholderTextColor={COLORS.muted}
                 value={form.motDePasse}
-                onChangeText={(v) => update('motDePasse', v)}
+                onChangeText={v => update('motDePasse', v)}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
+                autoCorrect={false}
               />
               <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
                 <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁️'}</Text>
@@ -137,8 +151,7 @@ export default function RegisterScreen() {
             {errors.motDePasse ? <Text style={styles.errorText}>{errors.motDePasse}</Text> : null}
           </View>
 
-          <Field label="Confirmer le mot de passe" field="confirm" placeholder="••••••••" secure />
-          {errors.confirm ? <Text style={[styles.errorText, { marginTop: -10, marginBottom: 8 }]}>{errors.confirm}</Text> : null}
+          <Field label="Confirmer le mot de passe" field="confirm" placeholder="••••••••" secure showPassword={showPassword} value={form.confirm} error={errors.confirm} onChangeText={v => update('confirm', v)} />
 
           <TouchableOpacity
             style={[styles.btnPrimary, loading && styles.btnDisabled]}
@@ -146,10 +159,7 @@ export default function RegisterScreen() {
             disabled={loading}
             activeOpacity={0.8}
           >
-            {loading
-              ? <ActivityIndicator color={COLORS.white} />
-              : <Text style={styles.btnPrimaryText}>Créer mon compte</Text>
-            }
+            {loading ? <ActivityIndicator color={COLORS.white} /> : <Text style={styles.btnPrimaryText}>Créer mon compte</Text>}
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.loginLink} onPress={() => router.back()}>
