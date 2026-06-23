@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc --skipLibCheck",
     "start": "node dist/index.js",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@supabase/supabase-js": "^2.108.0",
+    "@types/helmet": "^4.0.0",
     "axios": "^1.7.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -41,7 +42,7 @@
     "@types/node-cron": "^3.0.11",
     "@types/qrcode": "^1.5.6",
     "prisma": "^5.22.0",
-    "tsx": "^4.15.0",
-    "typescript": "5.4.5"
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3"
   }
 }
