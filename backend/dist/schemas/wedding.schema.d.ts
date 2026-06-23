@@ -1,0 +1,81 @@
+import { z } from 'zod';
+export declare const createWeddingSchema: z.ZodObject<{
+    nomCeremonie: z.ZodString;
+    dateJourJ: z.ZodString;
+    heureCeremonie: z.ZodOptional<z.ZodString>;
+    heureReception: z.ZodOptional<z.ZodString>;
+    lieuCeremonie: z.ZodOptional<z.ZodString>;
+    lieuReception: z.ZodOptional<z.ZodString>;
+    budgetTotal: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
+    devise: z.ZodDefault<z.ZodString>;
+    notes: z.ZodOptional<z.ZodString>;
+    partenaireId: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    nomCeremonie: string;
+    dateJourJ: string;
+    devise: string;
+    heureCeremonie?: string | undefined;
+    heureReception?: string | undefined;
+    lieuCeremonie?: string | undefined;
+    lieuReception?: string | undefined;
+    budgetTotal?: number | null | undefined;
+    notes?: string | undefined;
+    partenaireId?: string | undefined;
+}, {
+    nomCeremonie: string;
+    dateJourJ: string;
+    heureCeremonie?: string | undefined;
+    heureReception?: string | undefined;
+    lieuCeremonie?: string | undefined;
+    lieuReception?: string | undefined;
+    budgetTotal?: number | null | undefined;
+    devise?: string | undefined;
+    notes?: string | undefined;
+    partenaireId?: string | undefined;
+}>;
+export declare const updateWeddingSchema: z.ZodObject<{
+    nomCeremonie: z.ZodOptional<z.ZodString>;
+    dateJourJ: z.ZodOptional<z.ZodString>;
+    heureCeremonie: z.ZodOptional<z.ZodString>;
+    heureReception: z.ZodOptional<z.ZodString>;
+    lieuCeremonie: z.ZodOptional<z.ZodString>;
+    lieuReception: z.ZodOptional<z.ZodString>;
+    budgetTotal: z.ZodOptional<z.ZodNumber>;
+    devise: z.ZodOptional<z.ZodString>;
+    notes: z.ZodOptional<z.ZodString>;
+    statut: z.ZodOptional<z.ZodEnum<["EN_PREPARATION", "CONFIRME", "TERMINE", "ANNULE"]>>;
+    rsvpOuvert: z.ZodOptional<z.ZodBoolean>;
+    galerieOuverte: z.ZodOptional<z.ZodBoolean>;
+    rsvpDateLimite: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    nomCeremonie?: string | undefined;
+    dateJourJ?: string | undefined;
+    heureCeremonie?: string | undefined;
+    heureReception?: string | undefined;
+    lieuCeremonie?: string | undefined;
+    lieuReception?: string | undefined;
+    budgetTotal?: number | undefined;
+    devise?: string | undefined;
+    notes?: string | undefined;
+    statut?: "EN_PREPARATION" | "CONFIRME" | "TERMINE" | "ANNULE" | undefined;
+    rsvpOuvert?: boolean | undefined;
+    galerieOuverte?: boolean | undefined;
+    rsvpDateLimite?: string | undefined;
+}, {
+    nomCeremonie?: string | undefined;
+    dateJourJ?: string | undefined;
+    heureCeremonie?: string | undefined;
+    heureReception?: string | undefined;
+    lieuCeremonie?: string | undefined;
+    lieuReception?: string | undefined;
+    budgetTotal?: number | undefined;
+    devise?: string | undefined;
+    notes?: string | undefined;
+    statut?: "EN_PREPARATION" | "CONFIRME" | "TERMINE" | "ANNULE" | undefined;
+    rsvpOuvert?: boolean | undefined;
+    galerieOuverte?: boolean | undefined;
+    rsvpDateLimite?: string | undefined;
+}>;
+export type CreateWeddingInput = z.infer<typeof createWeddingSchema>;
+export type UpdateWeddingInput = z.infer<typeof updateWeddingSchema>;
+//# sourceMappingURL=wedding.schema.d.ts.map
