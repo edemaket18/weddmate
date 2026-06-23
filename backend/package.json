@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "API REST WeddMate — Node.js + Express + Prisma",
   "main": "dist/index.js",
-  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
