@@ -16,9 +16,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!mounted || isLoading) return
-    const isPublicRsvp = segments[0] === 'rsvp'
-    if (isPublicRsvp) return
-
+     
     const inAuthGroup = segments[0] === '(auth)'
     const inAppGroup = segments[0] === '(app)'
 
@@ -42,7 +40,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(app)" />
-        <Stack.Screen name="rsvp/[slug]" options={{ headerShown: false }} />
+        {/* <Stack.Screen name="rsvp/[slug]" options={{ headerShown: false }} /> */}
       </Stack>
     </View>
   )

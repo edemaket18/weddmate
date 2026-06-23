@@ -60,7 +60,6 @@
 </head>
 <body>
 
-<!-- Données injectées directement par Express — aucun fetch initial -->
 <script>
   var GALERIE = __GALERIE_DATA__;
   var SLUG = (GALERIE && GALERIE.slug) || '';
@@ -85,8 +84,8 @@
 <div class="footer">Propulsé par <span>WeddMate</span> 💍</div>
 
 <script>
-  // ── Initialisation à partir des données injectées ──────────
-  (function init() {
+
+(function init() {
     if (GALERIE && GALERIE.nomCeremonie) {
       document.getElementById('weddingTitle').textContent = GALERIE.nomCeremonie
       document.title = 'WeddMate — Galerie ' + GALERIE.nomCeremonie
@@ -194,7 +193,6 @@
       var base64 = await fileToBase64(file)
       var mimeType = file.type || 'image/jpeg'
 
-      // POST relatif — pas de problème CORS/HTTPS
       var res = await fetch('/gallery/' + SLUG + '/photos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

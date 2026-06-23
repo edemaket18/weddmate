@@ -39,16 +39,14 @@ export default function GalerieScreen() {
   const [pendingUri, setPendingUri] = useState<string | null>(null)
 
   const galerieUrl = currentWedding
-    ? `${process.env.EXPO_PUBLIC_API_URL}/gallery/${currentWedding.slug}`
+    ? `${process.env.EXPO_PUBLIC_API_URL}/gallery/${currentWedding.slug}/data`
     : ''
 
   const fetchPhotos = useCallback(async () => {
     if (!currentWedding) return
     setLoading(true)
     try {
-      // FIX CRITIQUE : utiliser /data pour recevoir du JSON
-      // /gallery/:slug (sans /data) renvoie la page HTML pour les invités
-      const { data } = await api.get(`/gallery/${currentWedding.slug}/data`)
+       const { data } = await api.get(`/gallery/${currentWedding.slug}/data`)
       setPhotos(data?.data?.photos || [])
     } catch (e) {
       console.log('[fetchPhotos]', e)
@@ -97,7 +95,7 @@ export default function GalerieScreen() {
       return
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 0.8,
     })
