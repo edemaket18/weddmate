@@ -23,6 +23,27 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
 
+      - key: APP_BASE_URL
+        sync: false
+
+      - key: SUPABASE_URL
+        sync: false
+
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+
+      - key: BUCKET_NAME
+        value: weddmate-photos
+
+      - key: BUCKET_QR
+        value: weddmate-qrcodes
+
+      - key: WHATSAPP_TOKEN
+        sync: false
+
+      - key: WHATSAPP_PHONE_ID
+        sync: false
+
 
 databases:
   - name: weddmate-db
