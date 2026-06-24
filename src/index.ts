@@ -24,17 +24,16 @@ app.use(
       directives: {
         defaultSrc:  ["'self'"],
         scriptSrc:   ["'self'", "'unsafe-inline'"],
-        scriptSrcAttr: ["'unsafe-inline'"],
-        styleSrc:    ["'self'", "'unsafe-inline'"],   // ← FIX CSS inline
-        imgSrc:      ["'self'", "data:", "https:", "blob:"], // ← FIX images Supabase
-        connectSrc:  ["'self'", "*"],                 // ← FIX fetch API
+        scriptSrcAttr: ["'unsafe-inline'"],// ← FIX CSS inline
+        imgSrc:      ["'self'", "data:", "https:", "blob:"], 
+        connectSrc:  ["'self'", "*"],                 
         fontSrc:     ["'self'", "https:", "data:"],
         objectSrc:   ["'none'"],
         mediaSrc:    ["'self'"],
         frameSrc:    ["'none'"],
       },
     },
-    crossOriginEmbedderPolicy: false,   // ← FIX chargement ressources
+    crossOriginEmbedderPolicy: false,   
   })
 )
 
