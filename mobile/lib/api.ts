@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 const resolveApiBaseUrl = () => {
   const url = process.env.EXPO_PUBLIC_API_URL
   if (url) return url.replace(/\/$/, '')
-  if (__DEV__) return 'http://localhost:3001'
   throw new Error('EXPO_PUBLIC_API_URL est requis pour un build de production')
 }
 
