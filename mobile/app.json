@@ -13,10 +13,13 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.weddmate.app"
+      "bundleIdentifier": "com.weddmate.app",
+      "newArchEnabled": false,
+
     },
     "android": {
       "package": "com.weddmate.app",
+      "newArchEnabled": false,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1B3A5C"
