@@ -15,7 +15,9 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.weddmate.app",
       "newArchEnabled": false,
-
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.weddmate.app",
