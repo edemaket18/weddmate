@@ -66,4 +66,4 @@ credentials.json
 .metro/
 
 # Generated
-*.tgz
+*.tgz.npmrc
