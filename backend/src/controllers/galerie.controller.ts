@@ -4,10 +4,16 @@ import path from 'path'
 import fs from 'fs'
 import { AuthRequest } from '../types'
 import { prisma } from '../lib/prisma'
+import ws from 'ws'
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
+  process.env.SUPABASE_SERVICE_KEY!,
+  {
+    realtime: {
+      transport: ws as any,
+    },
+  }
 )
 const BUCKET = process.env.BUCKET_NAME || 'weddmate-photos'
 const BUCKET_URL = process.env.BUCKET_URL || ''
