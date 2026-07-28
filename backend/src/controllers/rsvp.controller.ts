@@ -605,7 +605,7 @@ import { PrismaClient } from '@prisma/client'
 import { AuthRequest } from '../types'
 import { RsvpInput, AddInviteManuelInput, UpdateInviteInput } from '../schemas/rsvp.schema'
 
-const prisma = new PrismaClient()
+// utilise prisma de lib/prisma
 
 const checkAccess = async (weddingId: string, userId: string) =>
   prisma.weddingCouple.findFirst({ where: { weddingId, userId } })
