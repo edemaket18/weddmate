@@ -79,13 +79,13 @@ export declare const updateInviteSchema: z.ZodObject<{
     nombreAccompa: z.ZodOptional<z.ZodNumber>;
     notes: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    notes?: string | undefined;
     statut?: "CONFIRME" | "EN_ATTENTE" | "DECLINE" | "LISTE_ATTENTE" | undefined;
+    notes?: string | undefined;
     nombreAccompa?: number | undefined;
     tableAssignee?: string | undefined;
 }, {
-    notes?: string | undefined;
     statut?: "CONFIRME" | "EN_ATTENTE" | "DECLINE" | "LISTE_ATTENTE" | undefined;
+    notes?: string | undefined;
     nombreAccompa?: number | undefined;
     tableAssignee?: string | undefined;
 }>;

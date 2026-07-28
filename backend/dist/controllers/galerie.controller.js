@@ -8,7 +8,12 @@ const supabase_js_1 = require("@supabase/supabase-js");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const prisma_1 = require("../lib/prisma");
-const supabase = (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+const ws_1 = __importDefault(require("ws"));
+const supabase = (0, supabase_js_1.createClient)(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, {
+    realtime: {
+        transport: ws_1.default,
+    },
+});
 const BUCKET = process.env.BUCKET_NAME || 'weddmate-photos';
 const BUCKET_URL = process.env.BUCKET_URL || '';
 const checkAccess = async (weddingId, userId) => prisma_1.prisma.weddingCouple.findFirst({ where: { weddingId, userId } });

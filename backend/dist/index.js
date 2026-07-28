@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
@@ -26,17 +27,16 @@ app.use((0, helmet_1.default)({
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
-            scriptSrcAttr: ["'unsafe-inline'"],
-            styleSrc: ["'self'", "'unsafe-inline'"], // ← FIX CSS inline
-            imgSrc: ["'self'", "data:", "https:", "blob:"], // ← FIX images Supabase
-            connectSrc: ["'self'", "*"], // ← FIX fetch API
+            scriptSrcAttr: ["'unsafe-inline'"], // ← FIX CSS inline
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "*"],
             fontSrc: ["'self'", "https:", "data:"],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],
             frameSrc: ["'none'"],
         },
     },
-    crossOriginEmbedderPolicy: false, // ← FIX chargement ressources
+    crossOriginEmbedderPolicy: false,
 }));
 app.use((0, cors_1.default)({ origin: '*' }));
 app.use((req, res, next) => {
