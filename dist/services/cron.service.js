@@ -5,9 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startCronJobs = void 0;
 const node_cron_1 = __importDefault(require("node-cron"));
-const client_1 = require("@prisma/client");
 const whatsapp_service_1 = require("./whatsapp.service");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = require("../lib/prisma");
 const startCronJobs = () => {
     // Tous les jours à minuit
     node_cron_1.default.schedule('0 0 * * *', async () => {
@@ -22,7 +21,7 @@ const processRappels = async () => {
     const endOfDay = new Date(now);
     endOfDay.setHours(23, 59, 59, 999);
     // Récupérer tous les rappels programmés dus aujourd'hui
-    const rappels = await prisma.rappel.findMany({
+    const rappels = await prisma_1.prisma.rappel.findMany({
         where: {
             statut: 'PROGRAMME',
             dateEnvoi: { lte: endOfDay },
@@ -48,13 +47,13 @@ const processRappels = async () => {
                 message: rappel.messagePersonna || message,
             });
             // Marquer comme envoyé
-            await prisma.rappel.update({
+            await prisma_1.prisma.rappel.update({
                 where: { id: rappel.id },
                 data: { statut: 'ENVOYE' },
             });
             // Si c'est un rappel invité J-7, marquer l'invité
             if (rappel.type === 'RSVP_INVITE_J7') {
-                await prisma.invite.updateMany({
+                await prisma_1.prisma.invite.updateMany({
                     where: {
                         weddingId: rappel.weddingId,
                         whatsapp: rappel.destinataire,
@@ -67,7 +66,7 @@ const processRappels = async () => {
         }
         catch (error) {
             console.error(`❌ Echec rappel ${rappel.id}:`, error.message);
-            await prisma.rappel.update({
+            await prisma_1.prisma.rappel.update({
                 where: { id: rappel.id },
                 data: {
                     statut: 'ECHEC',

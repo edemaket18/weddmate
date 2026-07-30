@@ -19,8 +19,8 @@ export declare const createBudgetItemSchema: z.ZodObject<{
     categorie: "LIEU" | "TRAITEUR" | "PHOTOGRAPHE" | "VIDEASTE" | "DJ_MUSIQUE" | "ORCHESTRE" | "FLEURISTE" | "DECORATION" | "OFFICIANT" | "COIFFURE_MAQUILLAGE" | "TRANSPORT" | "GATEAU" | "ANIMATION" | "AUTRE";
     libelle: string;
     montantPrevu: number;
-    notes?: string | undefined;
     statut?: "PREVU" | "ACOMPTE" | "SOLDE" | undefined;
+    notes?: string | undefined;
     montantPaye?: number | undefined;
     datePaiement?: string | undefined;
 }>;
@@ -33,16 +33,16 @@ export declare const updateBudgetItemSchema: z.ZodObject<{
     datePaiement: z.ZodOptional<z.ZodString>;
     notes: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    notes?: string | undefined;
     statut?: "PREVU" | "ACOMPTE" | "SOLDE" | undefined;
+    notes?: string | undefined;
     categorie?: "LIEU" | "TRAITEUR" | "PHOTOGRAPHE" | "VIDEASTE" | "DJ_MUSIQUE" | "ORCHESTRE" | "FLEURISTE" | "DECORATION" | "OFFICIANT" | "COIFFURE_MAQUILLAGE" | "TRANSPORT" | "GATEAU" | "ANIMATION" | "AUTRE" | undefined;
     libelle?: string | undefined;
     montantPrevu?: number | undefined;
     montantPaye?: number | undefined;
     datePaiement?: string | undefined;
 }, {
-    notes?: string | undefined;
     statut?: "PREVU" | "ACOMPTE" | "SOLDE" | undefined;
+    notes?: string | undefined;
     categorie?: "LIEU" | "TRAITEUR" | "PHOTOGRAPHE" | "VIDEASTE" | "DJ_MUSIQUE" | "ORCHESTRE" | "FLEURISTE" | "DECORATION" | "OFFICIANT" | "COIFFURE_MAQUILLAGE" | "TRANSPORT" | "GATEAU" | "ANIMATION" | "AUTRE" | undefined;
     libelle?: string | undefined;
     montantPrevu?: number | undefined;

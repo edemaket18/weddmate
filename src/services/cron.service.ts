@@ -2,7 +2,7 @@ import cron from 'node-cron'
 import { PrismaClient } from '@prisma/client'
 import { sendWhatsAppMessage, buildMessage } from './whatsapp.service'
 
-const prisma = new PrismaClient()
+import { prisma } from "../lib/prisma"
 
 export const startCronJobs = () => {
   // Tous les jours à minuit

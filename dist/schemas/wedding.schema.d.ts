@@ -54,10 +54,10 @@ export declare const updateWeddingSchema: z.ZodObject<{
     heureReception?: string | undefined;
     lieuCeremonie?: string | undefined;
     lieuReception?: string | undefined;
+    statut?: "EN_PREPARATION" | "CONFIRME" | "TERMINE" | "ANNULE" | undefined;
     budgetTotal?: number | undefined;
     devise?: string | undefined;
     notes?: string | undefined;
-    statut?: "EN_PREPARATION" | "CONFIRME" | "TERMINE" | "ANNULE" | undefined;
     rsvpOuvert?: boolean | undefined;
     galerieOuverte?: boolean | undefined;
     rsvpDateLimite?: string | undefined;
@@ -68,10 +68,10 @@ export declare const updateWeddingSchema: z.ZodObject<{
     heureReception?: string | undefined;
     lieuCeremonie?: string | undefined;
     lieuReception?: string | undefined;
+    statut?: "EN_PREPARATION" | "CONFIRME" | "TERMINE" | "ANNULE" | undefined;
     budgetTotal?: number | undefined;
     devise?: string | undefined;
     notes?: string | undefined;
-    statut?: "EN_PREPARATION" | "CONFIRME" | "TERMINE" | "ANNULE" | undefined;
     rsvpOuvert?: boolean | undefined;
     galerieOuverte?: boolean | undefined;
     rsvpDateLimite?: string | undefined;

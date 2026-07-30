@@ -6,8 +6,8 @@ export declare const createTacheSchema: z.ZodObject<{
     priorite: z.ZodDefault<z.ZodNumber>;
     categorie: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    priorite: number;
     titre: string;
+    priorite: number;
     categorie?: string | undefined;
     description?: string | undefined;
     echeance?: string | undefined;
@@ -26,16 +26,16 @@ export declare const updateTacheSchema: z.ZodObject<{
     categorie: z.ZodOptional<z.ZodString>;
     faite: z.ZodOptional<z.ZodBoolean>;
 }, "strip", z.ZodTypeAny, {
+    titre?: string | undefined;
     priorite?: number | undefined;
     categorie?: string | undefined;
-    titre?: string | undefined;
     description?: string | undefined;
     echeance?: string | undefined;
     faite?: boolean | undefined;
 }, {
+    titre?: string | undefined;
     priorite?: number | undefined;
     categorie?: string | undefined;
-    titre?: string | undefined;
     description?: string | undefined;
     echeance?: string | undefined;
     faite?: boolean | undefined;
