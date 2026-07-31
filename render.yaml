@@ -2,6 +2,7 @@ services:
   - type: web
     name: weddmate-api
     runtime: node
+    plan: free
     rootDir: backend
 
     buildCommand: npm install && npx prisma generate && npm run build
