@@ -1,4 +1,4 @@
- import {
+import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
   Image, Modal, TextInput, Alert, ActivityIndicator,
   RefreshControl, Dimensions, Share,
@@ -291,7 +291,7 @@ export default function GalerieScreen() {
             <Text style={styles.qrTitle}>💍 {currentWedding.nomCeremonie}</Text>
             <Text style={styles.qrSubtitle}>Scannez ce QR Code pour accéder à la galerie photo et partager vos souvenirs</Text>
             <View style={styles.qrCard}>
-              <QRCode value={galerieUrl} size={220} color={COLORS.primary} backgroundColor={COLORS.white} />
+              {showQR && <QRCode value={galerieUrl} size={220} color={COLORS.primary} backgroundColor={COLORS.white} />}
             </View>
             <View style={styles.qrUrlBox}>
               <Text style={styles.qrUrlLabel}>Lien direct :</Text>
